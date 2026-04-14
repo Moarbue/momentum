@@ -10,6 +10,7 @@ class SettingsProvider with ChangeNotifier {
   bool _prepEnabled = true;
   int _prepDuration = 10;
   bool _removeLastRestEnabled = false;
+  bool _isLoaded = false;
 
   ThemeMode get themeMode => _themeMode;
   bool get notificationsEnabled => _notificationsEnabled;
@@ -19,6 +20,7 @@ class SettingsProvider with ChangeNotifier {
   bool get prepEnabled => _prepEnabled;
   int get prepDuration => _prepDuration;
   bool get removeLastRestEnabled => _removeLastRestEnabled;
+  bool get isLoaded => _isLoaded;
 
   SettingsProvider() {
     _loadSettings();
@@ -37,6 +39,7 @@ class SettingsProvider with ChangeNotifier {
     _prepEnabled = prefs.getBool('prepEnabled') ?? true;
     _prepDuration = prefs.getInt('prepDuration') ?? 10;
     _removeLastRestEnabled = prefs.getBool('removeLastRestEnabled') ?? false;
+    _isLoaded = true;
 
     notifyListeners();
   }

@@ -10,20 +10,30 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  late TextEditingController _prepDurationController;
+  TextEditingController? _prepDurationController;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeController();
+    });
+  }
+
+  void _initializeController() {
     final settings = context.read<SettingsProvider>();
-    _prepDurationController = TextEditingController(
-      text: settings.prepDuration.toString(),
-    );
+    if (settings.isLoaded) {
+      setState(() {
+        _prepDurationController = TextEditingController(
+          text: settings.prepDuration.toString(),
+        );
+      });
+    }
   }
 
   @override
   void dispose() {
-    _prepDurationController.dispose();
+    _prepDurationController?.dispose();
     super.dispose();
   }
 
@@ -93,7 +103,7 @@ class _SettingsPageState extends State<SettingsPage> {
               onChanged: (val) => settings.setPrepEnabled(val),
             ),
           ),
-          if (settings.prepEnabled)
+          if (settings.prepEnabled && _prepDurationController != null)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(

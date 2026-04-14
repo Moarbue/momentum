@@ -17,7 +17,7 @@ A simple and flexible interval timer app for workouts.
 
 Download the latest release from GitHub Releases:
 
-**[Momentum Releases](https://https://github.com/Moarbue/momentum/momentum/releases)**
+**[Momentum Releases](https://github.com/Moarbue/momentum/releases)**
 
 ## Building
 

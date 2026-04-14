@@ -86,7 +86,18 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
         );
       } else if (block is Set) {
         for (int i = 0; i < block.repetitions; i++) {
-          for (var subBlock in block.blocks) {
+          for (int j = 0; j < block.blocks.length; j++) {
+            var subBlock = block.blocks[j];
+
+            // Implement "remove last rest" logic
+            if (i == block.repetitions - 1 &&
+                j == block.blocks.length - 1 &&
+                block.removeLastRest &&
+                subBlock is WorkoutStep &&
+                subBlock.isRest) {
+              continue;
+            }
+
             expandBlock(
               subBlock,
               repetition: i + 1,
@@ -104,6 +115,7 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
   }
 
   void _startTimer() {
+    if (_isRunning) return;
     setState(() => _isRunning = true);
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
@@ -119,14 +131,30 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
   void _pauseTimer() {
     setState(() => _isRunning = false);
     _timer?.cancel();
+    _timer = null;
   }
 
   void _nextStep() {
     if (_currentStepIndex < _flatSteps.length - 1) {
       _currentStepIndex++;
       _remainingSeconds = _flatSteps[_currentStepIndex].step.durationValue;
+
+      // Reset timer to align the tick with the start of the new step
+      if (_isRunning) {
+        _timer?.cancel();
+        _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+          setState(() {
+            if (_remainingSeconds > 1) {
+              _remainingSeconds--;
+            } else {
+              _nextStep();
+            }
+          });
+        });
+      }
     } else {
       _timer?.cancel();
+      _timer = null;
       setState(() => _isRunning = false);
       _showWorkoutCompleteDialog();
     }
@@ -138,6 +166,20 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
         _currentStepIndex--;
         _remainingSeconds = _flatSteps[_currentStepIndex].step.durationValue;
       });
+
+      // Reset timer to align the tick with the start of the previous step
+      if (_isRunning) {
+        _timer?.cancel();
+        _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+          setState(() {
+            if (_remainingSeconds > 1) {
+              _remainingSeconds--;
+            } else {
+              _nextStep();
+            }
+          });
+        });
+      }
     }
   }
 

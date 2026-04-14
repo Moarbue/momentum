@@ -1,4 +1,4 @@
-package com.example.interval_timer
+package com.moarapps.momentum
 
 import io.flutter.embedding.android.FlutterActivity
 

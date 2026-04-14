@@ -214,7 +214,7 @@ class _SettingsPageState extends State<SettingsPage> {
             onTap: () {
               showAboutDialog(
                 context: context,
-                applicationName: 'Interval Timer',
+                applicationName: 'Momentum',
                 applicationVersion: '1.0.0',
                 applicationIcon: const Icon(Icons.timer),
               );

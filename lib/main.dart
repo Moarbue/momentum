@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
     final settings = context.watch<SettingsProvider>();
 
     return MaterialApp(
-      title: 'Interval Timer',
+      title: 'Momentum',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,

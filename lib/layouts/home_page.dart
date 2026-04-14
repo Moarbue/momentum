@@ -46,7 +46,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Interval Timer')),
+      appBar: AppBar(title: const Text('Momentum')),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _workouts.isEmpty

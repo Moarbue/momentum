@@ -41,56 +41,56 @@ class SettingsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void setThemeMode(ThemeMode mode) async {
+  Future<void> setThemeMode(ThemeMode mode) async {
     _themeMode = mode;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('themeMode', mode.index);
   }
 
-  void setNotificationsEnabled(bool enabled) async {
+  Future<void> setNotificationsEnabled(bool enabled) async {
     _notificationsEnabled = enabled;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('notificationsEnabled', enabled);
   }
 
-  void setSoundEnabled(bool enabled) async {
+  Future<void> setSoundEnabled(bool enabled) async {
     _soundEnabled = enabled;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('soundEnabled', enabled);
   }
 
-  void setCountdownSoundEnabled(bool enabled) async {
+  Future<void> setCountdownSoundEnabled(bool enabled) async {
     _countdownSoundEnabled = enabled;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('countdownSoundEnabled', enabled);
   }
 
-  void setStartSoundEnabled(bool enabled) async {
+  Future<void> setStartSoundEnabled(bool enabled) async {
     _startSoundEnabled = enabled;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('startSoundEnabled', enabled);
   }
 
-  void setPrepEnabled(bool enabled) async {
+  Future<void> setPrepEnabled(bool enabled) async {
     _prepEnabled = enabled;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('prepEnabled', enabled);
   }
 
-  void setPrepDuration(int duration) async {
+  Future<void> setPrepDuration(int duration) async {
     _prepDuration = duration;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('prepDuration', duration);
   }
 
-  void setRemoveLastRestEnabled(bool enabled) async {
+  Future<void> setRemoveLastRestEnabled(bool enabled) async {
     _removeLastRestEnabled = enabled;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();

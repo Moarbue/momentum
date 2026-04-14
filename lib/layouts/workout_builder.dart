@@ -202,6 +202,57 @@ class _StepEditorState extends State<_StepEditor> {
     super.dispose();
   }
 
+  void _showColorPicker() {
+    final List<Color> colors = [
+      const Color.fromARGB(255, 205, 92, 92), // Red
+      const Color.fromARGB(255, 138, 154, 91), // Green
+      const Color.fromARGB(255, 92, 138, 205), // Blue
+      const Color.fromARGB(255, 205, 180, 92), // Yellow
+      const Color.fromARGB(255, 150, 92, 205), // Purple
+      const Color.fromARGB(255, 92, 205, 150), // Teal
+    ];
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Select Color'),
+        content: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: colors.map((color) {
+            return GestureDetector(
+              onTap: () {
+                widget.step.backgroundColor = color;
+                widget.onChanged();
+                Navigator.pop(context);
+              },
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: widget.step.backgroundColor == color
+                        ? Colors.black
+                        : Colors.transparent,
+                    width: 3,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -211,6 +262,19 @@ class _StepEditorState extends State<_StepEditor> {
         padding: const EdgeInsets.all(8.0),
         child: Row(
           children: [
+            GestureDetector(
+              onTap: _showColorPicker,
+              child: Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: widget.step.backgroundColor,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
             Expanded(
               flex: 3,
               child: TextField(

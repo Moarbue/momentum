@@ -160,7 +160,7 @@ class _WorkoutItem extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: ListTile(
         title: Text(workout.name),
-        subtitle: Text('Duration: ${formatDuration(workout.duration)}'),
+        subtitle: Text('Duration: ${formatDurationClock(workout.duration)}'),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

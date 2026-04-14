@@ -303,7 +303,7 @@ class _StepEditorState extends State<_StepEditor> {
                     },
                   ),
                   Text(
-                    formatDuration(widget.step.durationValue),
+                    formatDurationClock(widget.step.durationValue),
                     style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                 ],

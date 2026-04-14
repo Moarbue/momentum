@@ -1,5 +1,5 @@
 String formatDuration(int seconds) {
-  if (seconds < 0) return "0s";
+  if (seconds < 0) return "0";
 
   int h = seconds ~/ 3600;
   int m = (seconds % 3600) ~/ 60;
@@ -11,5 +11,19 @@ String formatDuration(int seconds) {
     return '${m}:${s.toString().padLeft(2, '0')}';
   } else {
     return '${s}';
+  }
+}
+
+String formatDurationClock(int seconds) {
+  if (seconds < 0) return "00:00";
+
+  int h = seconds ~/ 3600;
+  int m = (seconds % 3600) ~/ 60;
+  int s = seconds % 60;
+
+  if (h > 0) {
+    return '${h}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+  } else {
+    return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 }

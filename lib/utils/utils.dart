@@ -10,6 +10,6 @@ String formatDuration(int seconds) {
   } else if (m > 0) {
     return '${m}:${s.toString().padLeft(2, '0')}';
   } else {
-    return '${s}s';
+    return '${s}';
   }
 }

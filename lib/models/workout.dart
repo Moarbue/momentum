@@ -7,23 +7,26 @@ const Color COLOR_REST = Color.fromARGB(255, 138, 154, 91);
 enum BlockType { step, set }
 
 abstract class WorkoutBlock {
+  String get id;
   int get duration;
   BlockType get type;
   Map<String, dynamic> toJson();
 }
 
 class WorkoutStep extends WorkoutBlock {
+  String id;
   String name;
   int durationValue;
   Color backgroundColor;
   bool isRest;
 
   WorkoutStep({
+    String? id,
     this.name = "Exercise",
     this.durationValue = 10,
     this.backgroundColor = COLOR_EXERCISE,
     this.isRest = false,
-  });
+  }) : id = id ?? const Uuid().v4();
 
   @override
   int get duration => durationValue;
@@ -34,6 +37,7 @@ class WorkoutStep extends WorkoutBlock {
   @override
   Map<String, dynamic> toJson() => {
     'type': type.index,
+    'id': id,
     'name': name,
     'duration': durationValue,
     'backgroundColor': backgroundColor.value,
@@ -42,6 +46,7 @@ class WorkoutStep extends WorkoutBlock {
 
   factory WorkoutStep.fromJson(Map<String, dynamic> json) {
     return WorkoutStep(
+      id: json['id'] as String,
       name: json['name'] as String,
       durationValue: json['duration'] as int,
       backgroundColor: Color(json['backgroundColor'] as int),
@@ -51,15 +56,18 @@ class WorkoutStep extends WorkoutBlock {
 }
 
 class Set extends WorkoutBlock {
+  String id;
   int repetitions;
   bool removeLastRest;
   List<WorkoutBlock> blocks;
 
   Set({
+    String? id,
     this.repetitions = 1,
     this.removeLastRest = true,
     List<WorkoutBlock>? blocks,
-  }) : this.blocks = blocks ?? [WorkoutStep()];
+  }) : id = id ?? const Uuid().v4(),
+       this.blocks = blocks ?? [WorkoutStep()];
 
   @override
   int get duration {
@@ -76,6 +84,7 @@ class Set extends WorkoutBlock {
   @override
   Map<String, dynamic> toJson() => {
     'type': type.index,
+    'id': id,
     'repetitions': repetitions,
     'removeLastRest': removeLastRest,
     'blocks': blocks.map((b) => b.toJson()).toList(),
@@ -94,6 +103,7 @@ class Set extends WorkoutBlock {
     }).toList();
 
     return Set(
+      id: json['id'] as String,
       repetitions: json['repetitions'] as int,
       removeLastRest: json['removeLastRest'] as bool,
       blocks: blocks,

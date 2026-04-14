@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/workout.dart';
 import '../utils/storage_helper.dart';
+import '../utils/utils.dart';
 
 class WorkoutBuilder extends StatefulWidget {
   final Workout workout;
@@ -289,14 +290,23 @@ class _StepEditorState extends State<_StepEditor> {
             const SizedBox(width: 8),
             Expanded(
               flex: 1,
-              child: TextField(
-                decoration: const InputDecoration(labelText: 'Secs'),
-                keyboardType: TextInputType.number,
-                controller: _durationController,
-                onChanged: (val) {
-                  widget.step.durationValue = int.tryParse(val) ?? 0;
-                  widget.onChanged();
-                },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    decoration: const InputDecoration(labelText: 'Secs'),
+                    keyboardType: TextInputType.number,
+                    controller: _durationController,
+                    onChanged: (val) {
+                      widget.step.durationValue = int.tryParse(val) ?? 0;
+                      widget.onChanged();
+                    },
+                  ),
+                  Text(
+                    formatDuration(widget.step.durationValue),
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ],
               ),
             ),
             IconButton(

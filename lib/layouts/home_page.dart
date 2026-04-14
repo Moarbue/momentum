@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/workout.dart';
 import '../utils/storage_helper.dart';
+import '../utils/utils.dart';
 import 'workout_builder.dart';
 import 'workout_runner.dart';
 import 'settings_page.dart';
@@ -159,7 +160,7 @@ class _WorkoutItem extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: ListTile(
         title: Text(workout.name),
-        subtitle: Text('Duration: ${workout.duration}s'),
+        subtitle: Text('Duration: ${formatDuration(workout.duration)}'),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

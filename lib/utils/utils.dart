@@ -5,10 +5,11 @@ String formatDuration(int seconds) {
   int m = (seconds % 3600) ~/ 60;
   int s = seconds % 60;
 
-  List<String> parts = [];
-  if (h > 0) parts.add('${h}h');
-  if (m > 0) parts.add('${m}m');
-  if (s > 0 || parts.isEmpty) parts.add('${s}s');
-
-  return parts.join(' ');
+  if (h > 0) {
+    return '${h}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+  } else if (m > 0) {
+    return '${m}:${s.toString().padLeft(2, '0')}';
+  } else {
+    return '${s}s';
+  }
 }

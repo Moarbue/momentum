@@ -12,20 +12,28 @@ class WorkoutBuilder extends StatefulWidget {
 
 class _WorkoutBuilderState extends State<WorkoutBuilder> {
   late Workout _workout;
+  late TextEditingController _nameController;
 
   @override
   void initState() {
     super.initState();
-    // Create a copy of the workout to avoid modifying the original until saved
     _workout = Workout(
       name: widget.workout.name,
       id: widget.workout.id,
       position: widget.workout.position,
       blocks: List<WorkoutBlock>.from(widget.workout.blocks),
     );
+    _nameController = TextEditingController(text: _workout.name);
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
   }
 
   void _save() async {
+    _workout.name = _nameController.text;
     await StorageHelper.saveWorkout(_workout);
     if (mounted) {
       Navigator.pop(context);
@@ -48,15 +56,27 @@ class _WorkoutBuilderState extends State<WorkoutBuilder> {
                 labelText: 'Workout Name',
                 border: OutlineInputBorder(),
               ),
+              controller: _nameController,
               onChanged: (val) => _workout.name = val,
-              controller: TextEditingController(text: _workout.name),
             ),
           ),
           Expanded(
-            child: ListView.builder(
+            child: ReorderableListView.builder(
               itemCount: _workout.blocks.length,
+              onReorder: (oldIndex, newIndex) {
+                setState(() {
+                  if (oldIndex < newIndex) {
+                    newIndex -= 1;
+                  }
+                  final item = _workout.blocks.removeAt(oldIndex);
+                  _workout.blocks.insert(newIndex, item);
+                });
+              },
               itemBuilder: (context, index) {
                 return _BlockEditor(
+                  key: ValueKey(
+                    _workout.blocks[index].hashCode,
+                  ), // Using hashCode as a simple key
                   block: _workout.blocks[index],
                   onChanged: () => setState(() {}),
                   onDelete: () {
@@ -120,12 +140,14 @@ class _BlockEditor extends StatelessWidget {
   Widget build(BuildContext context) {
     if (block is WorkoutStep) {
       return _StepEditor(
+        key: ValueKey(block),
         step: block as WorkoutStep,
         onChanged: onChanged,
         onDelete: onDelete,
       );
     } else if (block is Set) {
       return _SetEditor(
+        key: ValueKey(block),
         set: block as Set,
         onChanged: onChanged,
         onDelete: onDelete,
@@ -135,7 +157,7 @@ class _BlockEditor extends StatelessWidget {
   }
 }
 
-class _StepEditor extends StatelessWidget {
+class _StepEditor extends StatefulWidget {
   final WorkoutStep step;
   final VoidCallback onChanged;
   final VoidCallback onDelete;
@@ -148,9 +170,42 @@ class _StepEditor extends StatelessWidget {
   });
 
   @override
+  State<_StepEditor> createState() => _StepEditorState();
+}
+
+class _StepEditorState extends State<_StepEditor> {
+  late TextEditingController _nameController;
+  late TextEditingController _durationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.step.name);
+    _durationController = TextEditingController(
+      text: widget.step.durationValue.toString(),
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant _StepEditor oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.step != widget.step) {
+      _nameController.text = widget.step.name;
+      _durationController.text = widget.step.durationValue.toString();
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _durationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Card(
-      color: step.backgroundColor.withOpacity(0.2),
+      color: widget.step.backgroundColor.withOpacity(0.2),
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -160,11 +215,11 @@ class _StepEditor extends StatelessWidget {
               flex: 3,
               child: TextField(
                 decoration: const InputDecoration(labelText: 'Name'),
+                controller: _nameController,
                 onChanged: (val) {
-                  step.name = val;
-                  onChanged();
+                  widget.step.name = val;
+                  widget.onChanged();
                 },
-                controller: TextEditingController(text: step.name),
               ),
             ),
             const SizedBox(width: 8),
@@ -173,18 +228,16 @@ class _StepEditor extends StatelessWidget {
               child: TextField(
                 decoration: const InputDecoration(labelText: 'Secs'),
                 keyboardType: TextInputType.number,
+                controller: _durationController,
                 onChanged: (val) {
-                  step.durationValue = int.tryParse(val) ?? 0;
-                  onChanged();
+                  widget.step.durationValue = int.tryParse(val) ?? 0;
+                  widget.onChanged();
                 },
-                controller: TextEditingController(
-                  text: step.durationValue.toString(),
-                ),
               ),
             ),
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: onDelete,
+              onPressed: widget.onDelete,
             ),
           ],
         ),
@@ -193,7 +246,7 @@ class _StepEditor extends StatelessWidget {
   }
 }
 
-class _SetEditor extends StatelessWidget {
+class _SetEditor extends StatefulWidget {
   final Set set;
   final VoidCallback onChanged;
   final VoidCallback onDelete;
@@ -204,6 +257,35 @@ class _SetEditor extends StatelessWidget {
     required this.onChanged,
     required this.onDelete,
   });
+
+  @override
+  State<_SetEditor> createState() => _SetEditorState();
+}
+
+class _SetEditorState extends State<_SetEditor> {
+  late TextEditingController _repsController;
+
+  @override
+  void initState() {
+    super.initState();
+    _repsController = TextEditingController(
+      text: widget.set.repetitions.toString(),
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant _SetEditor oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.set != widget.set) {
+      _repsController.text = widget.set.repetitions.toString();
+    }
+  }
+
+  @override
+  void dispose() {
+    _repsController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -225,29 +307,47 @@ class _SetEditor extends StatelessWidget {
                   child: TextField(
                     decoration: const InputDecoration(labelText: 'Reps'),
                     keyboardType: TextInputType.number,
+                    controller: _repsController,
                     onChanged: (val) {
-                      set.repetitions = int.tryParse(val) ?? 1;
-                      onChanged();
+                      widget.set.repetitions = int.tryParse(val) ?? 1;
+                      widget.onChanged();
                     },
-                    controller: TextEditingController(
-                      text: set.repetitions.toString(),
-                    ),
                   ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: onDelete,
+                  onPressed: widget.onDelete,
                 ),
               ],
             ),
             const Divider(),
-            ...set.blocks.map(
-              (block) => _BlockEditor(
-                block: block,
-                onChanged: onChanged,
-                onDelete: () {
-                  set.blocks.remove(block);
-                  onChanged();
+            SizedBox(
+              height: widget.set.blocks.isEmpty ? 0 : null,
+              child: ReorderableListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: widget.set.blocks.length,
+                onReorder: (oldIndex, newIndex) {
+                  setState(() {
+                    if (oldIndex < newIndex) {
+                      newIndex -= 1;
+                    }
+                    final item = widget.set.blocks.removeAt(oldIndex);
+                    widget.set.blocks.insert(newIndex, item);
+                  });
+                  widget.onChanged();
+                },
+                itemBuilder: (context, index) {
+                  return _BlockEditor(
+                    key: ValueKey(widget.set.blocks[index]),
+                    block: widget.set.blocks[index],
+                    onChanged: () => setState(() {}),
+                    onDelete: () {
+                      widget.set.blocks.removeAt(index);
+                      setState(() {});
+                      widget.onChanged();
+                    },
+                  );
                 },
               ),
             ),
@@ -255,16 +355,16 @@ class _SetEditor extends StatelessWidget {
               children: [
                 TextButton.icon(
                   onPressed: () {
-                    set.blocks.add(WorkoutStep());
-                    onChanged();
+                    widget.set.blocks.add(WorkoutStep());
+                    widget.onChanged();
                   },
                   icon: const Icon(Icons.add),
                   label: const Text('Add Step'),
                 ),
                 TextButton.icon(
                   onPressed: () {
-                    set.blocks.add(Set());
-                    onChanged();
+                    widget.set.blocks.add(Set());
+                    widget.onChanged();
                   },
                   icon: const Icon(Icons.group_add),
                   label: const Text('Add Nested Set'),

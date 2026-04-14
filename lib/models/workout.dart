@@ -19,6 +19,7 @@ class WorkoutStep extends WorkoutBlock {
   int durationValue;
   Color backgroundColor;
   bool isRest;
+  bool skipLastRest;
 
   WorkoutStep({
     String? id,
@@ -26,6 +27,7 @@ class WorkoutStep extends WorkoutBlock {
     this.durationValue = 10,
     this.backgroundColor = COLOR_EXERCISE,
     this.isRest = false,
+    this.skipLastRest = false,
   }) : id = id ?? const Uuid().v4();
 
   @override
@@ -42,6 +44,7 @@ class WorkoutStep extends WorkoutBlock {
     'duration': durationValue,
     'backgroundColor': backgroundColor.value,
     'isRest': isRest,
+    'skipLastRest': skipLastRest,
   };
 
   factory WorkoutStep.fromJson(Map<String, dynamic> json) {
@@ -51,6 +54,7 @@ class WorkoutStep extends WorkoutBlock {
       durationValue: json['duration'] as int,
       backgroundColor: Color(json['backgroundColor'] as int),
       isRest: json['isRest'] as bool,
+      skipLastRest: json['skipLastRest'] as bool? ?? false,
     );
   }
 }

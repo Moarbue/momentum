@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'layouts/main_navigation.dart';
 import 'providers/settings_provider.dart';
+import 'utils/notification_helper.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationHelper.initialize();
   runApp(
     ChangeNotifierProvider(
       create: (_) => SettingsProvider(),

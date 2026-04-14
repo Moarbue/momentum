@@ -54,6 +54,15 @@ class _HomePageState extends State<HomePage> {
     await _loadWorkouts();
   }
 
+  void _duplicateWorkout(Workout workout) async {
+    final copy = Workout(
+      name: 'Copy of ${workout.name}',
+      blocks: List<WorkoutBlock>.from(workout.blocks),
+    );
+    await StorageHelper.saveWorkout(copy);
+    await _loadWorkouts();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -96,6 +105,7 @@ class _HomePageState extends State<HomePage> {
                     ).then((_) => _loadWorkouts());
                   },
                   onDelete: () => _showDeleteDialog(context, workout),
+                  onDuplicate: () => _duplicateWorkout(workout),
                 );
               },
             ),
@@ -142,6 +152,7 @@ class _WorkoutItem extends StatelessWidget {
   final VoidCallback onStart;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final VoidCallback onDuplicate;
 
   const _WorkoutItem({
     super.key,
@@ -149,6 +160,7 @@ class _WorkoutItem extends StatelessWidget {
     required this.onStart,
     required this.onEdit,
     required this.onDelete,
+    required this.onDuplicate,
   });
 
   @override
@@ -164,6 +176,11 @@ class _WorkoutItem extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.play_arrow, color: Colors.green),
               onPressed: onStart,
+            ),
+            IconButton(
+              icon: const Icon(Icons.copy, color: Colors.blue),
+              onPressed: onDuplicate,
+              tooltip: 'Duplicate',
             ),
             IconButton(icon: const Icon(Icons.edit), onPressed: onEdit),
             IconButton(

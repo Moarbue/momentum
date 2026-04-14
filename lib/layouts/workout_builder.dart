@@ -43,6 +43,25 @@ class _WorkoutBuilderState extends State<WorkoutBuilder> {
     super.dispose();
   }
 
+  WorkoutBlock _deepCopyBlock(WorkoutBlock block) {
+    if (block is WorkoutStep) {
+      return WorkoutStep(
+        name: block.name,
+        durationValue: block.durationValue,
+        backgroundColor: block.backgroundColor,
+        isRest: block.isRest,
+      );
+    } else if (block is Set) {
+      final copiedBlocks = block.blocks.map((b) => _deepCopyBlock(b)).toList();
+      return Set(
+        repetitions: block.repetitions,
+        removeLastRest: block.removeLastRest,
+        blocks: copiedBlocks,
+      );
+    }
+    return WorkoutStep();
+  }
+
   void _save() async {
     if (_workout.blocks.isEmpty) {
       _showEmptyWarning();
@@ -161,6 +180,13 @@ class _WorkoutBuilderState extends State<WorkoutBuilder> {
                       _workout.blocks.removeAt(index);
                     });
                   },
+                  onCopyBlock: (idx) {
+                    setState(() {
+                      final copy = _deepCopyBlock(_workout.blocks[idx]);
+                      _workout.blocks.insert(idx + 1, copy);
+                    });
+                  },
+                  blockList: _workout.blocks,
                 );
               },
             ),
@@ -205,12 +231,16 @@ class _BlockEditor extends StatelessWidget {
   final WorkoutBlock block;
   final VoidCallback onChanged;
   final VoidCallback onDelete;
+  final void Function(int index)? onCopyBlock;
+  final List<WorkoutBlock>? blockList;
 
   const _BlockEditor({
     super.key,
     required this.block,
     required this.onChanged,
     required this.onDelete,
+    this.onCopyBlock,
+    this.blockList,
   });
 
   @override
@@ -223,11 +253,13 @@ class _BlockEditor extends StatelessWidget {
         onDelete: onDelete,
       );
     } else if (block is Set) {
+      final setIndex = blockList?.indexOf(block) ?? 0;
       return _SetEditor(
         key: ValueKey(block),
         set: block as Set,
         onChanged: onChanged,
         onDelete: onDelete,
+        onCopy: () => onCopyBlock?.call(setIndex),
       );
     }
     return const SizedBox.shrink();
@@ -369,6 +401,22 @@ class _StepEditorState extends State<_StepEditor> {
                       const Text('Rest', style: TextStyle(fontSize: 10)),
                     ],
                   ),
+                  if (widget.step.isRest) ...[
+                    const SizedBox(width: 4),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Checkbox(
+                          value: widget.step.skipLastRest,
+                          onChanged: (val) {
+                            widget.step.skipLastRest = val ?? false;
+                            widget.onChanged();
+                          },
+                        ),
+                        const Text('Skip', style: TextStyle(fontSize: 10)),
+                      ],
+                    ),
+                  ],
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
@@ -423,12 +471,14 @@ class _SetEditor extends StatefulWidget {
   final Set set;
   final VoidCallback onChanged;
   final VoidCallback onDelete;
+  final VoidCallback onCopy;
 
   const _SetEditor({
     super.key,
     required this.set,
     required this.onChanged,
     required this.onDelete,
+    required this.onCopy,
   });
 
   @override
@@ -460,6 +510,39 @@ class _SetEditorState extends State<_SetEditor> {
     super.dispose();
   }
 
+  void _copySet() {
+    final copiedBlocks = widget.set.blocks.map((b) {
+      if (b is WorkoutStep) {
+        return WorkoutStep(
+          name: b.name,
+          durationValue: b.durationValue,
+          backgroundColor: b.backgroundColor,
+          isRest: b.isRest,
+        );
+      } else if (b is Set) {
+        final innerBlocks = b.blocks.map((inner) {
+          if (inner is WorkoutStep) {
+            return WorkoutStep(
+              name: inner.name,
+              durationValue: inner.durationValue,
+              backgroundColor: inner.backgroundColor,
+              isRest: inner.isRest,
+            );
+          }
+          return WorkoutStep();
+        }).toList();
+        return Set(
+          repetitions: b.repetitions,
+          removeLastRest: b.removeLastRest,
+          blocks: innerBlocks,
+        );
+      }
+      return WorkoutStep();
+    }).toList();
+    widget.set.blocks.addAll(copiedBlocks);
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -486,6 +569,11 @@ class _SetEditorState extends State<_SetEditor> {
                       widget.onChanged();
                     },
                   ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.copy, color: Colors.blue),
+                  onPressed: () => _copySet(),
+                  tooltip: 'Copy',
                 ),
                 IconButton(
                   icon: const Icon(Icons.delete, color: Colors.red),

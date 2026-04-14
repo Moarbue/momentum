@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import '../models/workout.dart';
 import '../providers/settings_provider.dart';
 import '../utils/utils.dart';
 import '../utils/sound_helper.dart';
+import '../utils/notification_helper.dart';
 
 class StepContext {
   final WorkoutStep step;
@@ -94,12 +96,11 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
           for (int j = 0; j < block.blocks.length; j++) {
             var subBlock = block.blocks[j];
 
-            if (settings.removeLastRestEnabled &&
+            if (subBlock is WorkoutStep &&
+                subBlock.isRest &&
                 i == block.repetitions - 1 &&
                 j == block.blocks.length - 1 &&
-                block.removeLastRest &&
-                subBlock is WorkoutStep &&
-                subBlock.isRest) {
+                (block.removeLastRest || subBlock.skipLastRest)) {
               continue;
             }
 
@@ -121,6 +122,7 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
 
   void _startTimer() {
     if (_isRunning) return;
+    WakelockPlus.enable();
     setState(() => _isRunning = true);
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _tick();
@@ -144,6 +146,7 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
   }
 
   void _pauseTimer() {
+    WakelockPlus.disable();
     setState(() => _isRunning = false);
     _timer?.cancel();
     _timer = null;
@@ -174,6 +177,13 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
           (fromTimer || _settings.skipSoundEnabled)) {
         SoundHelper.playStartSound();
       }
+      if (_settings.notificationsEnabled) {
+        final nextStep = _flatSteps[_currentStepIndex].step;
+        NotificationHelper.showStepNotification(
+          'Next: ${nextStep.name}',
+          '${nextStep.durationValue} seconds',
+        );
+      }
     } else {
       _pauseTimer();
       _showWorkoutCompleteDialog();
@@ -203,6 +213,7 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
   }
 
   void _showWorkoutCompleteDialog() {
+    WakelockPlus.disable();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

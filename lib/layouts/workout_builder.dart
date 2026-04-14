@@ -282,25 +282,31 @@ class _StepEditorState extends State<_StepEditor> {
                 children: [
                   Row(
                     children: [
-                      Checkbox(
-                        value: widget.step.isRest,
-                        onChanged: (val) {
-                          widget.step.isRest = val ?? false;
-                          widget.onChanged();
-                        },
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Checkbox(
+                            value: widget.step.isRest,
+                            onChanged: (val) {
+                              widget.step.isRest = val ?? false;
+                              widget.onChanged();
+                            },
+                          ),
+                          const Text('Rest', style: TextStyle(fontSize: 10)),
+                        ],
                       ),
-                      const Text('Rest'),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextField(
+                          decoration: const InputDecoration(labelText: 'Name'),
+                          controller: _nameController,
+                          onChanged: (val) {
+                            widget.step.name = val;
+                            widget.onChanged();
+                          },
+                        ),
+                      ),
                     ],
-                  ),
-                  Expanded(
-                    child: TextField(
-                      decoration: const InputDecoration(labelText: 'Name'),
-                      controller: _nameController,
-                      onChanged: (val) {
-                        widget.step.name = val;
-                        widget.onChanged();
-                      },
-                    ),
                   ),
                 ],
               ),

@@ -2,8 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/settings_provider.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  late TextEditingController _prepDurationController;
+
+  @override
+  void initState() {
+    super.initState();
+    final settings = context.read<SettingsProvider>();
+    _prepDurationController = TextEditingController(
+      text: settings.prepDuration.toString(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _prepDurationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,9 +105,7 @@ class SettingsPage extends StatelessWidget {
                     child: TextField(
                       decoration: const InputDecoration(isDense: true),
                       keyboardType: TextInputType.number,
-                      controller: TextEditingController(
-                        text: settings.prepDuration.toString(),
-                      ),
+                      controller: _prepDurationController,
                       onChanged: (val) {
                         final duration = int.tryParse(val) ?? 10;
                         settings.setPrepDuration(duration);
@@ -95,6 +115,16 @@ class SettingsPage extends StatelessWidget {
                 ],
               ),
             ),
+          ListTile(
+            title: const Text('Remove Last Rest of Set'),
+            subtitle: const Text(
+              'Skips the final rest period of a set if it is the last block in the set, preventing an unnecessary wait before the next set or finishing.',
+            ),
+            trailing: Switch(
+              value: settings.removeLastRestEnabled,
+              onChanged: (val) => settings.setRemoveLastRestEnabled(val),
+            ),
+          ),
           const Divider(),
           ListTile(
             title: const Text('About'),

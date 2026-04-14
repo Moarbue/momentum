@@ -22,19 +22,32 @@ class StorageHelper {
   static Future<List<Workout>> loadAllWorkouts() async {
     final path = await _localPath;
     final directory = Directory(path);
-    final List<FileSystemEntity> files = directory.listSync();
 
-    List<Workout> workouts = [];
-    for (var file in files) {
-      if (file is File &&
-          file.path.endsWith('.json') &&
-          file.path.contains('workout_')) {
-        final contents = await file.readAsString();
-        workouts.add(Workout.fromJson(jsonDecode(contents)));
-      }
+    if (!await directory.exists()) {
+      return [];
     }
 
-    // Sort by position
+    final List<FileSystemEntity> files = directory.listSync();
+
+    final futures = files
+        .where(
+          (file) =>
+              file is File &&
+              file.path.endsWith('.json') &&
+              file.path.contains('workout_'),
+        )
+        .map((file) async {
+          try {
+            final contents = await (file as File).readAsString();
+            return Workout.fromJson(jsonDecode(contents));
+          } catch (e) {
+            return null;
+          }
+        });
+
+    final results = await Future.wait(futures);
+    final workouts = results.whereType<Workout>().toList();
+
     workouts.sort((a, b) => a.position.compareTo(b.position));
     return workouts;
   }

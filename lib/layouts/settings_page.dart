@@ -31,14 +31,19 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _exportWorkout() async {
-    final workouts = await StorageHelper.loadAllWorkouts();
+    final (workouts, _) = await StorageHelper.loadAllWorkouts();
     if (workouts.isEmpty) {
       _showMessage('No workouts to export');
       return;
     }
 
     if (workouts.length == 1) {
-      await ExportImportHelper.exportWorkout(workouts.first);
+      final result = await ExportImportHelper.exportWorkout(workouts.first);
+      if (result != null) {
+        _showMessage('Exported "${workouts.first.name}"');
+      } else {
+        _showMessage('Export cancelled');
+      }
       return;
     }
 
@@ -67,7 +72,12 @@ class _SettingsPageState extends State<SettingsPage> {
     );
 
     if (selected != null) {
-      await ExportImportHelper.exportWorkout(selected);
+      final result = await ExportImportHelper.exportWorkout(selected);
+      if (result != null) {
+        _showMessage('Exported "${selected.name}"');
+      } else {
+        _showMessage('Export cancelled');
+      }
     }
   }
 

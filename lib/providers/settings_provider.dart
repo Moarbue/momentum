@@ -5,6 +5,8 @@ class SettingsProvider with ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
   bool _notificationsEnabled = true;
   bool _soundEnabled = true;
+  bool _countdownSoundEnabled = true;
+  bool _startSoundEnabled = true;
   bool _prepEnabled = true;
   int _prepDuration = 10;
   bool _removeLastRestEnabled = false;
@@ -12,6 +14,8 @@ class SettingsProvider with ChangeNotifier {
   ThemeMode get themeMode => _themeMode;
   bool get notificationsEnabled => _notificationsEnabled;
   bool get soundEnabled => _soundEnabled;
+  bool get countdownSoundEnabled => _countdownSoundEnabled;
+  bool get startSoundEnabled => _startSoundEnabled;
   bool get prepEnabled => _prepEnabled;
   int get prepDuration => _prepDuration;
   bool get removeLastRestEnabled => _removeLastRestEnabled;
@@ -28,6 +32,8 @@ class SettingsProvider with ChangeNotifier {
 
     _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? true;
     _soundEnabled = prefs.getBool('soundEnabled') ?? true;
+    _countdownSoundEnabled = prefs.getBool('countdownSoundEnabled') ?? true;
+    _startSoundEnabled = prefs.getBool('startSoundEnabled') ?? true;
     _prepEnabled = prefs.getBool('prepEnabled') ?? true;
     _prepDuration = prefs.getInt('prepDuration') ?? 10;
     _removeLastRestEnabled = prefs.getBool('removeLastRestEnabled') ?? false;
@@ -54,6 +60,20 @@ class SettingsProvider with ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('soundEnabled', enabled);
+  }
+
+  void setCountdownSoundEnabled(bool enabled) async {
+    _countdownSoundEnabled = enabled;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('countdownSoundEnabled', enabled);
+  }
+
+  void setStartSoundEnabled(bool enabled) async {
+    _startSoundEnabled = enabled;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('startSoundEnabled', enabled);
   }
 
   void setPrepEnabled(bool enabled) async {

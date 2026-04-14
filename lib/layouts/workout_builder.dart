@@ -280,33 +280,29 @@ class _StepEditorState extends State<_StepEditor> {
               flex: 3,
               child: Row(
                 children: [
-                  Row(
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Checkbox(
-                            value: widget.step.isRest,
-                            onChanged: (val) {
-                              widget.step.isRest = val ?? false;
-                              widget.onChanged();
-                            },
-                          ),
-                          const Text('Rest', style: TextStyle(fontSize: 10)),
-                        ],
+                      Checkbox(
+                        value: widget.step.isRest,
+                        onChanged: (val) {
+                          widget.step.isRest = val ?? false;
+                          widget.onChanged();
+                        },
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextField(
-                          decoration: const InputDecoration(labelText: 'Name'),
-                          controller: _nameController,
-                          onChanged: (val) {
-                            widget.step.name = val;
-                            widget.onChanged();
-                          },
-                        ),
-                      ),
+                      const Text('Rest', style: TextStyle(fontSize: 10)),
                     ],
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      decoration: const InputDecoration(labelText: 'Name'),
+                      controller: _nameController,
+                      onChanged: (val) {
+                        widget.step.name = val;
+                        widget.onChanged();
+                      },
+                    ),
                   ),
                 ],
               ),

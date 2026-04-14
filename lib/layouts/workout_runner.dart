@@ -134,6 +134,7 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
         _remainingSeconds--;
         // Play countdown sound for last 3 seconds
         if (settings.soundEnabled &&
+            settings.countdownSoundEnabled &&
             _remainingSeconds <= 3 &&
             _remainingSeconds >= 1) {
           SoundHelper.playCountdownSound();
@@ -158,7 +159,7 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
       });
 
       final settings = Provider.of<SettingsProvider>(context, listen: false);
-      if (settings.soundEnabled) {
+      if (settings.soundEnabled && settings.startSoundEnabled) {
         SoundHelper.playStartSound();
       }
     } else {

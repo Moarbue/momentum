@@ -39,46 +39,30 @@ class SettingsPage extends StatelessWidget {
             ),
           ),
           ListTile(
-            title: const Text('Preparation Timer'),
+            title: const Text('Sound Effects'),
             trailing: Switch(
-              value: settings.prepEnabled,
-              onChanged: (val) => settings.setPrepEnabled(val),
+              value: settings.soundEnabled,
+              onChanged: (val) => settings.setSoundEnabled(val),
             ),
           ),
-          if (settings.prepEnabled)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                children: [
-                  const Text('Preparation Duration (s):'),
-                  const Spacer(),
-                  SizedBox(
-                    width: 60,
-                    child: TextField(
-                      decoration: const InputDecoration(isDense: true),
-                      keyboardType: TextInputType.number,
-                      controller: TextEditingController(
-                        text: settings.prepDuration.toString(),
-                      ),
-                      onChanged: (val) {
-                        final duration = int.tryParse(val) ?? 10;
-                        settings.setPrepDuration(duration);
-                      },
-                    ),
-                  ),
-                ],
+          if (settings.soundEnabled) ...[
+            ListTile(
+              title: const Text('Countdown Beeps'),
+              subtitle: const Text('Play sound during the last 3 seconds'),
+              trailing: Switch(
+                value: settings.countdownSoundEnabled,
+                onChanged: (val) => settings.setCountdownSoundEnabled(val),
               ),
             ),
-          ListTile(
-            title: const Text('Remove Last Rest of Set'),
-            subtitle: const Text(
-              'Skips the final rest period of a set if it is the last block in the set, preventing an unnecessary wait before the next set or finishing.',
+            ListTile(
+              title: const Text('Start Beep'),
+              subtitle: const Text('Play sound at the start of each exercise'),
+              trailing: Switch(
+                value: settings.startSoundEnabled,
+                onChanged: (val) => settings.setStartSoundEnabled(val),
+              ),
             ),
-            trailing: Switch(
-              value: settings.removeLastRestEnabled,
-              onChanged: (val) => settings.setRemoveLastRestEnabled(val),
-            ),
-          ),
+          ],
           const Divider(),
           ListTile(
             title: const Text('Preparation Timer'),

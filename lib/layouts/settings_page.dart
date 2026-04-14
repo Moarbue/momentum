@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/workout.dart';
 import '../providers/settings_provider.dart';
+import '../utils/export_import_helper.dart';
+import '../utils/storage_helper.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -25,6 +28,65 @@ class _SettingsPageState extends State<SettingsPage> {
   void dispose() {
     _prepDurationController.dispose();
     super.dispose();
+  }
+
+  Future<void> _exportWorkout() async {
+    final workouts = await StorageHelper.loadAllWorkouts();
+    if (workouts.isEmpty) {
+      _showMessage('No workouts to export');
+      return;
+    }
+
+    if (workouts.length == 1) {
+      await ExportImportHelper.exportWorkout(workouts.first);
+      return;
+    }
+
+    final selected = await showDialog<Workout>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Select Workout'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: workouts.length,
+            itemBuilder: (context, index) => ListTile(
+              title: Text(workouts[index].name),
+              onTap: () => Navigator.pop(context, workouts[index]),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+
+    if (selected != null) {
+      await ExportImportHelper.exportWorkout(selected);
+    }
+  }
+
+  Future<void> _importWorkout() async {
+    try {
+      final workout = await ExportImportHelper.importWorkout();
+      if (workout != null) {
+        await StorageHelper.saveWorkout(workout);
+        _showMessage('Workout "${workout.name}" imported successfully');
+      }
+    } catch (e) {
+      _showMessage('Failed to import: ${e.toString()}');
+    }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -132,6 +194,19 @@ class _SettingsPageState extends State<SettingsPage> {
               value: settings.removeLastRestEnabled,
               onChanged: (val) => settings.setRemoveLastRestEnabled(val),
             ),
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.file_upload),
+            title: const Text('Export Workout'),
+            subtitle: const Text('Save workout to a JSON file'),
+            onTap: _exportWorkout,
+          ),
+          ListTile(
+            leading: const Icon(Icons.file_download),
+            title: const Text('Import Workout'),
+            subtitle: const Text('Load workout from a JSON file'),
+            onTap: _importWorkout,
           ),
           const Divider(),
           ListTile(

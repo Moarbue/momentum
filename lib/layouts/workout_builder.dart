@@ -280,12 +280,17 @@ class _StepEditorState extends State<_StepEditor> {
               flex: 3,
               child: Row(
                 children: [
-                  Checkbox(
-                    value: widget.step.isRest,
-                    onChanged: (val) {
-                      widget.step.isRest = val ?? false;
-                      widget.onChanged();
-                    },
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: widget.step.isRest,
+                        onChanged: (val) {
+                          widget.step.isRest = val ?? false;
+                          widget.onChanged();
+                        },
+                      ),
+                      const Text('Rest'),
+                    ],
                   ),
                   Expanded(
                     child: TextField(

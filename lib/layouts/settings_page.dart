@@ -39,10 +39,41 @@ class SettingsPage extends StatelessWidget {
             ),
           ),
           ListTile(
-            title: const Text('Sound Effects'),
+            title: const Text('Preparation Timer'),
             trailing: Switch(
-              value: settings.soundEnabled,
-              onChanged: (val) => settings.setSoundEnabled(val),
+              value: settings.prepEnabled,
+              onChanged: (val) => settings.setPrepEnabled(val),
+            ),
+          ),
+          if (settings.prepEnabled)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  const Text('Preparation Duration (s):'),
+                  const Spacer(),
+                  SizedBox(
+                    width: 60,
+                    child: TextField(
+                      decoration: const InputDecoration(isDense: true),
+                      keyboardType: TextInputType.number,
+                      controller: TextEditingController(
+                        text: settings.prepDuration.toString(),
+                      ),
+                      onChanged: (val) {
+                        final duration = int.tryParse(val) ?? 10;
+                        settings.setPrepDuration(duration);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ListTile(
+            title: const Text('Remove Last Rest of Set'),
+            trailing: Switch(
+              value: settings.removeLastRestEnabled,
+              onChanged: (val) => settings.setRemoveLastRestEnabled(val),
             ),
           ),
           const Divider(),

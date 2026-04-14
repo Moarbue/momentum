@@ -40,7 +40,7 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
 
   void _initializeWorkout() {
     final settings = Provider.of<SettingsProvider>(context, listen: false);
-    _flatSteps = _flattenWorkout(widget.workout);
+    _flatSteps = _flattenWorkout(widget.workout, settings);
 
     if (settings.prepEnabled) {
       _flatSteps.insert(
@@ -63,7 +63,10 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
     }
   }
 
-  List<StepContext> _flattenWorkout(Workout workout) {
+  List<StepContext> _flattenWorkout(
+    Workout workout,
+    SettingsProvider settings,
+  ) {
     List<StepContext> steps = [];
 
     void expandBlock(
@@ -89,7 +92,8 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
           for (int j = 0; j < block.blocks.length; j++) {
             var subBlock = block.blocks[j];
 
-            if (i == block.repetitions - 1 &&
+            if (settings.removeLastRestEnabled &&
+                i == block.repetitions - 1 &&
                 j == block.blocks.length - 1 &&
                 block.removeLastRest &&
                 subBlock is WorkoutStep &&
@@ -116,14 +120,20 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
   void _startTimer() {
     if (_isRunning) return;
     setState(() => _isRunning = true);
+
+    // We start the timer immediately. The first tick happens after 1 second.
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        if (_remainingSeconds > 1) {
-          _remainingSeconds--;
-        } else {
-          _nextStep();
-        }
-      });
+      _tick();
+    });
+  }
+
+  void _tick() {
+    setState(() {
+      if (_remainingSeconds > 1) {
+        _remainingSeconds--;
+      } else {
+        _nextStep();
+      }
     });
   }
 

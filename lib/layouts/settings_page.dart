@@ -71,6 +71,9 @@ class SettingsPage extends StatelessWidget {
             ),
           ListTile(
             title: const Text('Remove Last Rest of Set'),
+            subtitle: const Text(
+              'Skips the final rest period of a set if it is the last block in the set, preventing an unnecessary wait before the next set or finishing.',
+            ),
             trailing: Switch(
               value: settings.removeLastRestEnabled,
               onChanged: (val) => settings.setRemoveLastRestEnabled(val),

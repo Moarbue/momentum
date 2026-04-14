@@ -29,10 +29,16 @@ class _HomePageState extends State<HomePage> {
       _workouts = workouts;
       _isLoading = false;
     });
-    if (errorCount > 0 && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$errorCount workout(s) failed to load')),
-      );
+    if (mounted) {
+      if (workouts.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${workouts.length} workout(s) loaded')),
+        );
+      } else if (errorCount > 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$errorCount workout(s) failed to load')),
+        );
+      }
     }
   }
 

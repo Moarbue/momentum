@@ -86,7 +86,9 @@ class _SettingsPageState extends State<SettingsPage> {
       final workout = await ExportImportHelper.importWorkout();
       if (workout != null) {
         await StorageHelper.saveWorkout(workout);
-        _showMessage('Workout "${workout.name}" imported successfully');
+        _showMessage(
+          'Workout "${workout.name}" imported. Go to Workouts tab to view.',
+        );
       }
     } catch (e) {
       _showMessage('Failed to import: ${e.toString()}');
@@ -187,7 +189,10 @@ class _SettingsPageState extends State<SettingsPage> {
                       keyboardType: TextInputType.number,
                       controller: _prepDurationController,
                       onChanged: (val) {
-                        final duration = int.tryParse(val) ?? 10;
+                        final parsed = int.tryParse(val);
+                        final duration = parsed != null && parsed > 0
+                            ? parsed
+                            : 10;
                         settings.setPrepDuration(duration);
                       },
                     ),

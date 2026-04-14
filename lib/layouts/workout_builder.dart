@@ -25,13 +25,16 @@ class _WorkoutBuilderState extends State<WorkoutBuilder> {
   @override
   void initState() {
     super.initState();
+    final initialName = widget.workout.name.isEmpty
+        ? 'My Workout'
+        : widget.workout.name;
     _workout = Workout(
-      name: widget.workout.name,
+      name: initialName,
       id: widget.workout.id,
       position: widget.workout.position,
       blocks: List<WorkoutBlock>.from(widget.workout.blocks),
     );
-    _nameController = TextEditingController(text: _workout.name);
+    _nameController = TextEditingController(text: initialName);
   }
 
   @override
@@ -45,7 +48,12 @@ class _WorkoutBuilderState extends State<WorkoutBuilder> {
       _showEmptyWarning();
       return;
     }
-    _workout.name = _nameController.text;
+    final name = _nameController.text.trim();
+    if (name.isEmpty) {
+      _showNameWarning();
+      return;
+    }
+    _workout.name = name;
     await StorageHelper.saveWorkout(_workout);
     if (mounted) {
       Navigator.pop(context);
@@ -70,8 +78,33 @@ class _WorkoutBuilderState extends State<WorkoutBuilder> {
     );
   }
 
+  void _showNameWarning() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Invalid Name'),
+        content: const Text('Please enter a workout name.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _run() {
-    _workout.name = _nameController.text;
+    if (_workout.blocks.isEmpty) {
+      _showEmptyWarning();
+      return;
+    }
+    final name = _nameController.text.trim();
+    if (name.isEmpty) {
+      _showNameWarning();
+      return;
+    }
+    _workout.name = name;
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => WorkoutRunner(workout: _workout)),
@@ -103,7 +136,7 @@ class _WorkoutBuilderState extends State<WorkoutBuilder> {
                 border: OutlineInputBorder(),
               ),
               controller: _nameController,
-              onChanged: (val) => _workout.name = val,
+              onChanged: (val) => _workout.name = val.trim(),
             ),
           ),
           Expanded(

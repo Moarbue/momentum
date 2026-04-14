@@ -149,6 +149,12 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
         _currentStepIndex++;
         _remainingSeconds = _flatSteps[_currentStepIndex].step.durationValue;
       });
+      if (_isRunning) {
+        _timer?.cancel();
+        _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+          _tick();
+        });
+      }
     } else {
       _pauseTimer();
       _showWorkoutCompleteDialog();
@@ -161,6 +167,12 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
         _currentStepIndex--;
         _remainingSeconds = _flatSteps[_currentStepIndex].step.durationValue;
       });
+      if (_isRunning) {
+        _timer?.cancel();
+        _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+          _tick();
+        });
+      }
     }
   }
 

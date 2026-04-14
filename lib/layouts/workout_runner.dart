@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/workout.dart';
 import '../providers/settings_provider.dart';
 import '../utils/utils.dart';
+import '../utils/sound_helper.dart';
 
 class StepContext {
   final WorkoutStep step;
@@ -120,17 +121,23 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
   void _startTimer() {
     if (_isRunning) return;
     setState(() => _isRunning = true);
-
-    // We start the timer immediately. The first tick happens after 1 second.
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _tick();
     });
   }
 
   void _tick() {
+    final settings = Provider.of<SettingsProvider>(context, listen: false);
+
     setState(() {
       if (_remainingSeconds > 1) {
         _remainingSeconds--;
+        // Play countdown sound for last 3 seconds
+        if (settings.soundEnabled &&
+            _remainingSeconds <= 3 &&
+            _remainingSeconds >= 1) {
+          SoundHelper.playCountdownSound();
+        }
       } else {
         _nextStep();
       }
@@ -149,11 +156,10 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
         _currentStepIndex++;
         _remainingSeconds = _flatSteps[_currentStepIndex].step.durationValue;
       });
-      if (_isRunning) {
-        _timer?.cancel();
-        _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-          _tick();
-        });
+
+      final settings = Provider.of<SettingsProvider>(context, listen: false);
+      if (settings.soundEnabled) {
+        SoundHelper.playStartSound();
       }
     } else {
       _pauseTimer();
@@ -167,12 +173,6 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
         _currentStepIndex--;
         _remainingSeconds = _flatSteps[_currentStepIndex].step.durationValue;
       });
-      if (_isRunning) {
-        _timer?.cancel();
-        _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-          _tick();
-        });
-      }
     }
   }
 

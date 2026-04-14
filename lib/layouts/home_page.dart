@@ -4,7 +4,6 @@ import '../utils/storage_helper.dart';
 import '../utils/utils.dart';
 import 'workout_builder.dart';
 import 'workout_runner.dart';
-import 'settings_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -47,20 +46,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Interval Timer'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsPage()),
-              );
-            },
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Interval Timer')),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _workouts.isEmpty

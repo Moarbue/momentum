@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'layouts/home_page.dart';
+import 'layouts/main_navigation.dart';
 import 'providers/settings_provider.dart';
 
 void main() {
@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       themeMode: settings.themeMode,
-      home: const HomePage(),
+      home: const MainNavigation(),
     );
   }
 }

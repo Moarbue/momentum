@@ -10,30 +10,20 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  TextEditingController? _prepDurationController;
+  late TextEditingController _prepDurationController;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeController();
-    });
-  }
-
-  void _initializeController() {
     final settings = context.read<SettingsProvider>();
-    if (settings.isLoaded) {
-      setState(() {
-        _prepDurationController = TextEditingController(
-          text: settings.prepDuration.toString(),
-        );
-      });
-    }
+    _prepDurationController = TextEditingController(
+      text: settings.prepDuration.toString(),
+    );
   }
 
   @override
   void dispose() {
-    _prepDurationController?.dispose();
+    _prepDurationController.dispose();
     super.dispose();
   }
 
@@ -94,6 +84,14 @@ class _SettingsPageState extends State<SettingsPage> {
                 onChanged: (val) => settings.setStartSoundEnabled(val),
               ),
             ),
+            ListTile(
+              title: const Text('Skip Sound'),
+              subtitle: const Text('Play sound when skipping exercises'),
+              trailing: Switch(
+                value: settings.skipSoundEnabled,
+                onChanged: (val) => settings.setSkipSoundEnabled(val),
+              ),
+            ),
           ],
           const Divider(),
           ListTile(
@@ -103,7 +101,7 @@ class _SettingsPageState extends State<SettingsPage> {
               onChanged: (val) => settings.setPrepEnabled(val),
             ),
           ),
-          if (settings.prepEnabled && _prepDurationController != null)
+          if (settings.prepEnabled)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(

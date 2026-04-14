@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 import '../models/workout.dart';
 import '../utils/storage_helper.dart';
 import '../utils/utils.dart';
+import 'workout_runner.dart';
 
 class WorkoutBuilder extends StatefulWidget {
   final Workout workout;
-  const WorkoutBuilder({super.key, required this.workout});
+  final bool isQuickStart;
+  const WorkoutBuilder({
+    super.key,
+    required this.workout,
+    this.isQuickStart = false,
+  });
 
   @override
   State<WorkoutBuilder> createState() => _WorkoutBuilderState();
@@ -14,6 +20,7 @@ class WorkoutBuilder extends StatefulWidget {
 class _WorkoutBuilderState extends State<WorkoutBuilder> {
   late Workout _workout;
   late TextEditingController _nameController;
+  VoidCallback? onRunWorkout;
 
   @override
   void initState() {
@@ -41,12 +48,28 @@ class _WorkoutBuilderState extends State<WorkoutBuilder> {
     }
   }
 
+  void _run() {
+    _workout.name = _nameController.text;
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => WorkoutRunner(workout: _workout)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Workout'),
-        actions: [IconButton(icon: const Icon(Icons.save), onPressed: _save)],
+        title: Text(widget.isQuickStart ? 'Quick Start' : 'Edit Workout'),
+        actions: [
+          if (widget.isQuickStart)
+            IconButton(
+              icon: const Icon(Icons.play_arrow),
+              onPressed: _run,
+              tooltip: 'Run',
+            ),
+          IconButton(icon: const Icon(Icons.save), onPressed: _save),
+        ],
       ),
       body: Column(
         children: [

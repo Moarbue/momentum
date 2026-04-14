@@ -440,7 +440,7 @@ class _SetEditorState extends State<_SetEditor> {
               height: widget.set.blocks.isEmpty ? 0 : null,
               child: ReorderableListView.builder(
                 shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
+                physics: const ClampingScrollPhysics(),
                 itemCount: widget.set.blocks.length,
                 onReorder: (oldIndex, newIndex) {
                   setState(() {

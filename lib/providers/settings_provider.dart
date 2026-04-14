@@ -7,6 +7,7 @@ class SettingsProvider with ChangeNotifier {
   bool _soundEnabled = true;
   bool _countdownSoundEnabled = true;
   bool _startSoundEnabled = true;
+  bool _skipSoundEnabled = true;
   bool _prepEnabled = true;
   int _prepDuration = 10;
   bool _removeLastRestEnabled = false;
@@ -17,6 +18,7 @@ class SettingsProvider with ChangeNotifier {
   bool get soundEnabled => _soundEnabled;
   bool get countdownSoundEnabled => _countdownSoundEnabled;
   bool get startSoundEnabled => _startSoundEnabled;
+  bool get skipSoundEnabled => _skipSoundEnabled;
   bool get prepEnabled => _prepEnabled;
   int get prepDuration => _prepDuration;
   bool get removeLastRestEnabled => _removeLastRestEnabled;
@@ -36,6 +38,7 @@ class SettingsProvider with ChangeNotifier {
     _soundEnabled = prefs.getBool('soundEnabled') ?? true;
     _countdownSoundEnabled = prefs.getBool('countdownSoundEnabled') ?? true;
     _startSoundEnabled = prefs.getBool('startSoundEnabled') ?? true;
+    _skipSoundEnabled = prefs.getBool('skipSoundEnabled') ?? true;
     _prepEnabled = prefs.getBool('prepEnabled') ?? true;
     _prepDuration = prefs.getInt('prepDuration') ?? 10;
     _removeLastRestEnabled = prefs.getBool('removeLastRestEnabled') ?? false;
@@ -77,6 +80,13 @@ class SettingsProvider with ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('startSoundEnabled', enabled);
+  }
+
+  Future<void> setSkipSoundEnabled(bool enabled) async {
+    _skipSoundEnabled = enabled;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('skipSoundEnabled', enabled);
   }
 
   Future<void> setPrepEnabled(bool enabled) async {

@@ -151,15 +151,30 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
     _timer = null;
   }
 
-  void _nextStep() {
+  void _nextStep({bool fromTimer = true}) {
+    final wasRunning = _isRunning;
+    _timer?.cancel();
+
     if (_currentStepIndex < _flatSteps.length - 1) {
       setState(() {
         _currentStepIndex++;
         _remainingSeconds = _flatSteps[_currentStepIndex].step.durationValue;
+        if (!wasRunning) {
+          _isRunning = false;
+          _timer = null;
+        } else {
+          _isRunning = true;
+          _timer = Timer.periodic(
+            const Duration(seconds: 1),
+            (timer) => _tick(),
+          );
+        }
       });
 
       final settings = Provider.of<SettingsProvider>(context, listen: false);
-      if (settings.soundEnabled && settings.startSoundEnabled) {
+      if (settings.soundEnabled &&
+          settings.startSoundEnabled &&
+          (fromTimer || settings.skipSoundEnabled)) {
         SoundHelper.playStartSound();
       }
     } else {
@@ -169,10 +184,23 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
   }
 
   void _prevStep() {
+    final wasRunning = _isRunning;
+    _timer?.cancel();
+
     if (_currentStepIndex > 0) {
       setState(() {
         _currentStepIndex--;
         _remainingSeconds = _flatSteps[_currentStepIndex].step.durationValue;
+        if (!wasRunning) {
+          _isRunning = false;
+          _timer = null;
+        } else {
+          _isRunning = true;
+          _timer = Timer.periodic(
+            const Duration(seconds: 1),
+            (timer) => _tick(),
+          );
+        }
       });
     }
   }
@@ -288,7 +316,7 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
                     size: 48,
                     color: Colors.white,
                   ),
-                  onPressed: _nextStep,
+                  onPressed: () => _nextStep(fromTimer: false),
                 ),
               ],
             ),

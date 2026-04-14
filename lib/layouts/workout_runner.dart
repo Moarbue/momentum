@@ -5,6 +5,18 @@ import '../models/workout.dart';
 import '../providers/settings_provider.dart';
 import '../utils/utils.dart';
 
+class StepContext {
+  final WorkoutStep step;
+  final int repetition;
+  final int totalRepetitions;
+
+  StepContext({
+    required this.step,
+    required this.repetition,
+    required this.totalRepetitions,
+  });
+}
+
 class WorkoutRunner extends StatefulWidget {
   final Workout workout;
   const WorkoutRunner({super.key, required this.workout});
@@ -14,7 +26,7 @@ class WorkoutRunner extends StatefulWidget {
 }
 
 class _WorkoutRunnerState extends State<WorkoutRunner> {
-  late List<WorkoutStep> _flatSteps;
+  late List<StepContext> _flatSteps;
   int _currentStepIndex = 0;
   int _remainingSeconds = 0;
   Timer? _timer;
@@ -33,37 +45,53 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
     if (settings.prepEnabled) {
       _flatSteps.insert(
         0,
-        WorkoutStep(
-          name: 'Get Ready!',
-          durationValue: settings.prepDuration,
-          backgroundColor: Colors.blueGrey,
-          isRest: true,
+        StepContext(
+          step: WorkoutStep(
+            name: 'Get Ready!',
+            durationValue: settings.prepDuration,
+            backgroundColor: Colors.blueGrey,
+            isRest: true,
+          ),
+          repetition: 1,
+          totalRepetitions: 1,
         ),
       );
     }
 
     if (_flatSteps.isNotEmpty) {
-      _remainingSeconds = _flatSteps[0].durationValue;
+      _remainingSeconds = _flatSteps[0].step.durationValue;
     }
   }
 
-  List<WorkoutStep> _flattenWorkout(Workout workout) {
-    List<WorkoutStep> steps = [];
+  List<StepContext> _flattenWorkout(Workout workout) {
+    List<StepContext> steps = [];
 
-    void expandBlock(WorkoutBlock block) {
+    void expandBlock(
+      WorkoutBlock block, {
+      int repetition = 1,
+      int totalRepetitions = 1,
+    }) {
       if (block is WorkoutStep) {
         steps.add(
-          WorkoutStep(
-            name: block.name,
-            durationValue: block.durationValue,
-            backgroundColor: block.backgroundColor,
-            isRest: block.isRest,
+          StepContext(
+            step: WorkoutStep(
+              name: block.name,
+              durationValue: block.durationValue,
+              backgroundColor: block.backgroundColor,
+              isRest: block.isRest,
+            ),
+            repetition: repetition,
+            totalRepetitions: totalRepetitions,
           ),
         );
       } else if (block is Set) {
         for (int i = 0; i < block.repetitions; i++) {
           for (var subBlock in block.blocks) {
-            expandBlock(subBlock);
+            expandBlock(
+              subBlock,
+              repetition: i + 1,
+              totalRepetitions: block.repetitions,
+            );
           }
         }
       }
@@ -96,11 +124,20 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
   void _nextStep() {
     if (_currentStepIndex < _flatSteps.length - 1) {
       _currentStepIndex++;
-      _remainingSeconds = _flatSteps[_currentStepIndex].durationValue;
+      _remainingSeconds = _flatSteps[_currentStepIndex].step.durationValue;
     } else {
       _timer?.cancel();
       setState(() => _isRunning = false);
       _showWorkoutCompleteDialog();
+    }
+  }
+
+  void _prevStep() {
+    if (_currentStepIndex > 0) {
+      setState(() {
+        _currentStepIndex--;
+        _remainingSeconds = _flatSteps[_currentStepIndex].step.durationValue;
+      });
     }
   }
 
@@ -138,7 +175,13 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
       );
     }
 
-    final currentStep = _flatSteps[_currentStepIndex];
+    final currentContext = _flatSteps[_currentStepIndex];
+    final currentStep = currentContext.step;
+
+    String nextStepName = 'Finished';
+    if (_currentStepIndex < _flatSteps.length - 1) {
+      nextStepName = _flatSteps[_currentStepIndex + 1].step.name;
+    }
 
     return Scaffold(
       backgroundColor: currentStep.backgroundColor,
@@ -151,6 +194,11 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text(
+              'Next: $nextStepName',
+              style: const TextStyle(fontSize: 20, color: Colors.white70),
+            ),
+            const SizedBox(height: 16),
             Text(
               currentStep.name,
               style: const TextStyle(
@@ -171,13 +219,22 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
             ),
             const SizedBox(height: 48),
             Text(
-              'Step ${_currentStepIndex + 1} of ${_flatSteps.length}',
+              'Rep ${currentContext.repetition} of ${currentContext.totalRepetitions}',
               style: const TextStyle(fontSize: 24, color: Colors.white70),
             ),
             const SizedBox(height: 64),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                IconButton(
+                  icon: const Icon(
+                    Icons.skip_previous,
+                    size: 48,
+                    color: Colors.white,
+                  ),
+                  onPressed: _prevStep,
+                ),
+                const SizedBox(width: 32),
                 ElevatedButton(
                   onPressed: _isRunning ? _pauseTimer : _startTimer,
                   style: ElevatedButton.styleFrom(
@@ -188,24 +245,31 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
                   ),
                   child: Text(_isRunning ? 'Pause' : 'Start'),
                 ),
-                const SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    _pauseTimer();
-                    setState(() {
-                      _currentStepIndex = 0;
-                      _remainingSeconds = _flatSteps[0].durationValue;
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 16,
-                    ),
+                const SizedBox(width: 32),
+                IconButton(
+                  icon: const Icon(
+                    Icons.skip_next,
+                    size: 48,
+                    color: Colors.white,
                   ),
-                  child: const Text('Reset'),
+                  onPressed: _nextStep,
                 ),
               ],
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: () {
+                _pauseTimer();
+                setState(() {
+                  _currentStepIndex = 0;
+                  _remainingSeconds = _flatSteps[0].step.durationValue;
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white24,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Reset'),
             ),
           ],
         ),

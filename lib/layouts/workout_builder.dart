@@ -75,9 +75,7 @@ class _WorkoutBuilderState extends State<WorkoutBuilder> {
               },
               itemBuilder: (context, index) {
                 return _BlockEditor(
-                  key: ValueKey(
-                    _workout.blocks[index].hashCode,
-                  ), // Using hashCode as a simple key
+                  key: ValueKey(_workout.blocks[index]),
                   block: _workout.blocks[index],
                   onChanged: () => setState(() {}),
                   onDelete: () {

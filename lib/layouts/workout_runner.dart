@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/workout.dart';
+import '../providers/settings_provider.dart';
+import '../utils/utils.dart';
 
 class WorkoutRunner extends StatefulWidget {
   final Workout workout;
@@ -20,7 +23,25 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
   @override
   void initState() {
     super.initState();
+    _initializeWorkout();
+  }
+
+  void _initializeWorkout() {
+    final settings = Provider.of<SettingsProvider>(context, listen: false);
     _flatSteps = _flattenWorkout(widget.workout);
+
+    if (settings.prepEnabled) {
+      _flatSteps.insert(
+        0,
+        WorkoutStep(
+          name: 'Get Ready!',
+          durationValue: settings.prepDuration,
+          backgroundColor: Colors.blueGrey,
+          isRest: true,
+        ),
+      );
+    }
+
     if (_flatSteps.isNotEmpty) {
       _remainingSeconds = _flatSteps[0].durationValue;
     }
@@ -58,7 +79,7 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
     setState(() => _isRunning = true);
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
-        if (_remainingSeconds > 0) {
+        if (_remainingSeconds > 1) {
           _remainingSeconds--;
         } else {
           _nextStep();
@@ -141,7 +162,7 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
             ),
             const SizedBox(height: 24),
             Text(
-              '$_remainingSeconds',
+              formatDuration(_remainingSeconds),
               style: const TextStyle(
                 fontSize: 120,
                 fontWeight: FontWeight.bold,

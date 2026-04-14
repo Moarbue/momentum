@@ -19,12 +19,12 @@ class StorageHelper {
     await file.writeAsString(jsonEncode(workout.toJson()));
   }
 
-  static Future<List<Workout>> loadAllWorkouts() async {
+  static Future<(List<Workout>, int)> loadAllWorkouts() async {
     final path = await _localPath;
     final directory = Directory(path);
 
     if (!await directory.exists()) {
-      return [];
+      return (<Workout>[], 0);
     }
 
     final List<FileSystemEntity> files = directory.listSync();
@@ -47,9 +47,10 @@ class StorageHelper {
 
     final results = await Future.wait(futures);
     final workouts = results.whereType<Workout>().toList();
+    final errorCount = results.where((w) => w == null).length;
 
     workouts.sort((a, b) => a.position.compareTo(b.position));
-    return workouts;
+    return (workouts, errorCount);
   }
 
   static Future<void> deleteWorkout(String id) async {

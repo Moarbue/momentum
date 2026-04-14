@@ -24,11 +24,16 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _loadWorkouts() async {
     setState(() => _isLoading = true);
-    final workouts = await StorageHelper.loadAllWorkouts();
+    final (workouts, errorCount) = await StorageHelper.loadAllWorkouts();
     setState(() {
       _workouts = workouts;
       _isLoading = false;
     });
+    if (errorCount > 0 && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$errorCount workout(s) failed to load')),
+      );
+    }
   }
 
   Future<void> _saveSorting() async {

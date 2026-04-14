@@ -28,6 +28,7 @@ class WorkoutRunner extends StatefulWidget {
 
 class _WorkoutRunnerState extends State<WorkoutRunner> {
   late List<StepContext> _flatSteps;
+  late SettingsProvider _settings;
   int _currentStepIndex = 0;
   int _remainingSeconds = 0;
   Timer? _timer;
@@ -36,20 +37,20 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
   @override
   void initState() {
     super.initState();
+    _settings = Provider.of<SettingsProvider>(context, listen: false);
     _initializeWorkout();
   }
 
   void _initializeWorkout() {
-    final settings = Provider.of<SettingsProvider>(context, listen: false);
-    _flatSteps = _flattenWorkout(widget.workout, settings);
+    _flatSteps = _flattenWorkout(widget.workout, _settings);
 
-    if (settings.prepEnabled) {
+    if (_settings.prepEnabled) {
       _flatSteps.insert(
         0,
         StepContext(
           step: WorkoutStep(
             name: 'Get Ready!',
-            durationValue: settings.prepDuration,
+            durationValue: _settings.prepDuration,
             backgroundColor: Colors.blueGrey,
             isRest: true,
           ),
@@ -127,14 +128,11 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
   }
 
   void _tick() {
-    final settings = Provider.of<SettingsProvider>(context, listen: false);
-
     setState(() {
       if (_remainingSeconds > 1) {
         _remainingSeconds--;
-        // Play countdown sound for last 3 seconds
-        if (settings.soundEnabled &&
-            settings.countdownSoundEnabled &&
+        if (_settings.soundEnabled &&
+            _settings.countdownSoundEnabled &&
             _remainingSeconds <= 3 &&
             _remainingSeconds >= 1) {
           SoundHelper.playCountdownSound();
@@ -171,10 +169,9 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
         }
       });
 
-      final settings = Provider.of<SettingsProvider>(context, listen: false);
-      if (settings.soundEnabled &&
-          settings.startSoundEnabled &&
-          (fromTimer || settings.skipSoundEnabled)) {
+      if (_settings.soundEnabled &&
+          _settings.startSoundEnabled &&
+          (fromTimer || _settings.skipSoundEnabled)) {
         SoundHelper.playStartSound();
       }
     } else {

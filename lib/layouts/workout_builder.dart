@@ -41,11 +41,33 @@ class _WorkoutBuilderState extends State<WorkoutBuilder> {
   }
 
   void _save() async {
+    if (_workout.blocks.isEmpty) {
+      _showEmptyWarning();
+      return;
+    }
     _workout.name = _nameController.text;
     await StorageHelper.saveWorkout(_workout);
     if (mounted) {
       Navigator.pop(context);
     }
+  }
+
+  void _showEmptyWarning() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Empty Workout'),
+        content: const Text(
+          'This workout has no steps. Add at least one step before saving.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _run() {
@@ -339,7 +361,10 @@ class _StepEditorState extends State<_StepEditor> {
                     keyboardType: TextInputType.number,
                     controller: _durationController,
                     onChanged: (val) {
-                      widget.step.durationValue = int.tryParse(val) ?? 0;
+                      final parsed = int.tryParse(val);
+                      widget.step.durationValue = parsed != null && parsed > 0
+                          ? parsed
+                          : 1;
                       widget.onChanged();
                     },
                   ),
@@ -436,9 +461,10 @@ class _SetEditorState extends State<_SetEditor> {
               ],
             ),
             const Divider(),
-            SizedBox(
-              height: widget.set.blocks.isEmpty ? 0 : null,
-              child: ReorderableListView.builder(
+            if (widget.set.blocks.isEmpty)
+              const SizedBox(height: 0)
+            else
+              ReorderableListView.builder(
                 shrinkWrap: true,
                 physics: const ClampingScrollPhysics(),
                 itemCount: widget.set.blocks.length,
@@ -465,7 +491,6 @@ class _SetEditorState extends State<_SetEditor> {
                   );
                 },
               ),
-            ),
             Row(
               children: [
                 TextButton.icon(

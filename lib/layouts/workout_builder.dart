@@ -20,6 +20,7 @@ class WorkoutBuilder extends StatefulWidget {
 class _WorkoutBuilderState extends State<WorkoutBuilder> {
   late Workout _workout;
   late TextEditingController _nameController;
+  late bool _skipLastRest;
   VoidCallback? onRunWorkout;
 
   @override
@@ -32,9 +33,11 @@ class _WorkoutBuilderState extends State<WorkoutBuilder> {
       name: initialName,
       id: widget.workout.id,
       position: widget.workout.position,
+      skipLastRest: widget.workout.skipLastRest,
       blocks: List<WorkoutBlock>.from(widget.workout.blocks),
     );
     _nameController = TextEditingController(text: initialName);
+    _skipLastRest = widget.workout.skipLastRest;
   }
 
   @override
@@ -53,11 +56,7 @@ class _WorkoutBuilderState extends State<WorkoutBuilder> {
       );
     } else if (block is Set) {
       final copiedBlocks = block.blocks.map((b) => _deepCopyBlock(b)).toList();
-      return Set(
-        repetitions: block.repetitions,
-        removeLastRest: block.removeLastRest,
-        blocks: copiedBlocks,
-      );
+      return Set(repetitions: block.repetitions, blocks: copiedBlocks);
     }
     return WorkoutStep();
   }
@@ -156,6 +155,32 @@ class _WorkoutBuilderState extends State<WorkoutBuilder> {
               ),
               controller: _nameController,
               onChanged: (val) => _workout.name = val.trim(),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: _skipLastRest,
+                  onChanged: (val) {
+                    setState(() {
+                      _skipLastRest = val ?? false;
+                      _workout.skipLastRest = _skipLastRest;
+                    });
+                  },
+                ),
+                const Text('Skip Last Rest'),
+                const SizedBox(width: 4),
+                Tooltip(
+                  message:
+                      'Skips the final rest period of the workout if it is the last step, preventing an unnecessary wait before finishing.',
+                  child: IconButton(
+                    icon: const Icon(Icons.info_outline),
+                    onPressed: () {},
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -401,22 +426,6 @@ class _StepEditorState extends State<_StepEditor> {
                       const Text('Rest', style: TextStyle(fontSize: 10)),
                     ],
                   ),
-                  if (widget.step.isRest) ...[
-                    const SizedBox(width: 4),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Checkbox(
-                          value: widget.step.skipLastRest,
-                          onChanged: (val) {
-                            widget.step.skipLastRest = val ?? false;
-                            widget.onChanged();
-                          },
-                        ),
-                        const Text('Skip', style: TextStyle(fontSize: 10)),
-                      ],
-                    ),
-                  ],
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
@@ -531,11 +540,7 @@ class _SetEditorState extends State<_SetEditor> {
           }
           return WorkoutStep();
         }).toList();
-        return Set(
-          repetitions: b.repetitions,
-          removeLastRest: b.removeLastRest,
-          blocks: innerBlocks,
-        );
+        return Set(repetitions: b.repetitions, blocks: innerBlocks);
       }
       return WorkoutStep();
     }).toList();

@@ -3,14 +3,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsProvider with ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
-  bool _notificationsEnabled = true;
-  bool _soundEnabled = true;
+  bool _notificationsEnabled = false;
+  bool _soundEnabled = false;
   bool _countdownSoundEnabled = true;
   bool _startSoundEnabled = true;
   bool _skipSoundEnabled = true;
   bool _prepEnabled = true;
   int _prepDuration = 10;
-  bool _removeLastRestEnabled = false;
   bool _isLoaded = false;
 
   ThemeMode get themeMode => _themeMode;
@@ -21,7 +20,6 @@ class SettingsProvider with ChangeNotifier {
   bool get skipSoundEnabled => _skipSoundEnabled;
   bool get prepEnabled => _prepEnabled;
   int get prepDuration => _prepDuration;
-  bool get removeLastRestEnabled => _removeLastRestEnabled;
   bool get isLoaded => _isLoaded;
 
   SettingsProvider() {
@@ -41,7 +39,6 @@ class SettingsProvider with ChangeNotifier {
     _skipSoundEnabled = prefs.getBool('skipSoundEnabled') ?? true;
     _prepEnabled = prefs.getBool('prepEnabled') ?? true;
     _prepDuration = prefs.getInt('prepDuration') ?? 10;
-    _removeLastRestEnabled = prefs.getBool('removeLastRestEnabled') ?? false;
     _isLoaded = true;
 
     notifyListeners();
@@ -101,12 +98,5 @@ class SettingsProvider with ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('prepDuration', duration);
-  }
-
-  Future<void> setRemoveLastRestEnabled(bool enabled) async {
-    _removeLastRestEnabled = enabled;
-    notifyListeners();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('removeLastRestEnabled', enabled);
   }
 }

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/workout.dart';
 import '../providers/settings_provider.dart';
 import '../utils/export_import_helper.dart';
+import '../utils/notification_helper.dart';
 import '../utils/storage_helper.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -131,7 +132,12 @@ class _SettingsPageState extends State<SettingsPage> {
             title: const Text('Notifications'),
             trailing: Switch(
               value: settings.notificationsEnabled,
-              onChanged: (val) => settings.setNotificationsEnabled(val),
+              onChanged: (val) {
+                if (val) {
+                  NotificationHelper.requestPermissions();
+                }
+                settings.setNotificationsEnabled(val);
+              },
             ),
           ),
           ListTile(
@@ -200,16 +206,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
             ),
-          ListTile(
-            title: const Text('Remove Last Rest of Set'),
-            subtitle: const Text(
-              'Skips the final rest period of a set if it is the last block in the set, preventing an unnecessary wait before the next set or finishing.',
-            ),
-            trailing: Switch(
-              value: settings.removeLastRestEnabled,
-              onChanged: (val) => settings.setRemoveLastRestEnabled(val),
-            ),
-          ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.file_upload),

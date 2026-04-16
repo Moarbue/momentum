@@ -62,16 +62,11 @@ class WorkoutStep extends WorkoutBlock {
 class Set extends WorkoutBlock {
   String id;
   int repetitions;
-  bool removeLastRest;
   List<WorkoutBlock> blocks;
 
-  Set({
-    String? id,
-    this.repetitions = 1,
-    this.removeLastRest = true,
-    List<WorkoutBlock>? blocks,
-  }) : id = id ?? const Uuid().v4(),
-       this.blocks = blocks ?? [WorkoutStep()];
+  Set({String? id, this.repetitions = 1, List<WorkoutBlock>? blocks})
+    : id = id ?? const Uuid().v4(),
+      this.blocks = blocks ?? [WorkoutStep()];
 
   @override
   int get duration {
@@ -90,7 +85,6 @@ class Set extends WorkoutBlock {
     'type': type.index,
     'id': id,
     'repetitions': repetitions,
-    'removeLastRest': removeLastRest,
     'blocks': blocks.map((b) => b.toJson()).toList(),
   };
 
@@ -109,7 +103,6 @@ class Set extends WorkoutBlock {
     return Set(
       id: json['id'] as String,
       repetitions: json['repetitions'] as int,
-      removeLastRest: json['removeLastRest'] as bool,
       blocks: blocks,
     );
   }
@@ -120,12 +113,14 @@ class Workout {
   String id;
   int position;
   List<WorkoutBlock> blocks;
+  bool skipLastRest;
 
   Workout({
     this.name = "Workout",
     String? id,
     this.position = -1,
     List<WorkoutBlock>? blocks,
+    this.skipLastRest = false,
   }) : this.id = id ?? const Uuid().v4(),
        this.blocks = blocks ?? [Set()];
 
@@ -142,6 +137,7 @@ class Workout {
     'id': id,
     'position': position,
     'blocks': blocks.map((b) => b.toJson()).toList(),
+    'skipLastRest': skipLastRest,
   };
 
   factory Workout.fromJson(Map<String, dynamic> json) {
@@ -161,6 +157,7 @@ class Workout {
       id: json['id'] as String,
       position: json['position'] as int,
       blocks: blocks,
+      skipLastRest: json['skipLastRest'] as bool? ?? false,
     );
   }
 }

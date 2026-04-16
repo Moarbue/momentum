@@ -100,7 +100,7 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
                 subBlock.isRest &&
                 i == block.repetitions - 1 &&
                 j == block.blocks.length - 1 &&
-                (block.removeLastRest || subBlock.skipLastRest)) {
+                workout.skipLastRest) {
               continue;
             }
 

@@ -20,6 +20,24 @@ class NotificationHelper {
     await _notifications.initialize(initSettings);
   }
 
+  static Future<void> requestPermissions() async {
+    final androidPlugin = _notifications
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    if (androidPlugin != null) {
+      await androidPlugin.requestNotificationsPermission();
+    }
+
+    final iosPlugin = _notifications
+        .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin
+        >();
+    if (iosPlugin != null) {
+      await iosPlugin.requestPermissions(alert: true, badge: true, sound: true);
+    }
+  }
+
   static Future<void> showStepNotification(String title, String body) async {
     const androidDetails = AndroidNotificationDetails(
       'workout_channel',

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import '../models/workout.dart';
 
@@ -18,11 +19,10 @@ class ExportImportHelper {
         fileName: fileName,
         type: FileType.custom,
         allowedExtensions: [fileExtension],
+        bytes: Uint8List.fromList(utf8.encode(jsonStr)),
       );
 
       if (result != null) {
-        final file = File(result);
-        await file.writeAsString(jsonStr);
         return result;
       }
       return null;

@@ -32,8 +32,8 @@ class SettingsProvider with ChangeNotifier {
     final themeIndex = prefs.getInt('themeMode') ?? 0;
     _themeMode = ThemeMode.values[themeIndex];
 
-    _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? true;
-    _soundEnabled = prefs.getBool('soundEnabled') ?? true;
+    _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? false;
+    _soundEnabled = prefs.getBool('soundEnabled') ?? false;
     _countdownSoundEnabled = prefs.getBool('countdownSoundEnabled') ?? true;
     _startSoundEnabled = prefs.getBool('startSoundEnabled') ?? true;
     _skipSoundEnabled = prefs.getBool('skipSoundEnabled') ?? true;

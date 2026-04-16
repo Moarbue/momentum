@@ -200,14 +200,6 @@ class ExportImportHelper {
       );
     }
 
-    if (!json.containsKey('removeLastRest') ||
-        json['removeLastRest'] is! bool) {
-      return ValidationResult(
-        false,
-        'Block $index: missing or invalid "removeLastRest" field',
-      );
-    }
-
     if (!json.containsKey('blocks') || json['blocks'] is! List) {
       return ValidationResult(
         false,

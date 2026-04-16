@@ -13,16 +13,21 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
+  final GlobalKey<HomePageState> _homePageKey = GlobalKey<HomePageState>();
 
   late final List<Widget> _pages;
+
+  void _reloadWorkouts() {
+    _homePageKey.currentState?.loadWorkouts(showSnackbar: true);
+  }
 
   @override
   void initState() {
     super.initState();
     _pages = [
-      const HomePage(),
+      HomePage(key: _homePageKey),
       WorkoutBuilder(workout: Workout(), isQuickStart: true),
-      const SettingsPage(),
+      SettingsPage(onImportComplete: _reloadWorkouts),
     ];
   }
 

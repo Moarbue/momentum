@@ -7,7 +7,9 @@ import '../utils/notification_helper.dart';
 import '../utils/storage_helper.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key});
+  final VoidCallback? onImportComplete;
+
+  const SettingsPage({super.key, this.onImportComplete});
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -90,6 +92,7 @@ class _SettingsPageState extends State<SettingsPage> {
         _showMessage(
           'Workout "${workout.name}" imported. Go to Workouts tab to view.',
         );
+        widget.onImportComplete?.call();
       }
     } catch (e) {
       _showMessage('Failed to import: ${e.toString()}');

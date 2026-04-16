@@ -27,6 +27,7 @@ class ExportImportHelper {
       }
       return null;
     } catch (e) {
+      print('Export error: $e');
       return null;
     }
   }

@@ -172,12 +172,39 @@ class _WorkoutBuilderState extends State<WorkoutBuilder> {
                 ),
                 const Text('Skip Last Rest'),
                 const SizedBox(width: 4),
-                Tooltip(
-                  message:
-                      'Skips the final rest period of the workout if it is the last step, preventing an unnecessary wait before finishing.',
-                  child: IconButton(
+                Builder(
+                  builder: (context) => IconButton(
                     icon: const Icon(Icons.info_outline),
-                    onPressed: () {},
+                    onPressed: () {
+                      final RenderBox button =
+                          context.findRenderObject() as RenderBox;
+                      final RenderBox overlay =
+                          Overlay.of(context).context.findRenderObject()
+                              as RenderBox;
+                      final RelativeRect position = RelativeRect.fromRect(
+                        Rect.fromPoints(
+                          button.localToGlobal(Offset.zero, ancestor: overlay),
+                          button.localToGlobal(
+                            button.size.bottomRight(Offset.zero),
+                            ancestor: overlay,
+                          ),
+                        ),
+                        Offset.zero & overlay.size,
+                      );
+                      showMenu(
+                        context: context,
+                        position: position,
+                        items: [
+                          PopupMenuItem(
+                            enabled: false,
+                            child: const Text(
+                              'Skips the final rest period of the workout if it is the last step, preventing an unnecessary wait before finishing.',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ],

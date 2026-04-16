@@ -9,27 +9,27 @@ class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> {
   List<Workout> _workouts = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadWorkouts();
+    loadWorkouts();
   }
 
-  Future<void> _loadWorkouts() async {
+  Future<void> loadWorkouts({bool showSnackbar = false}) async {
     setState(() => _isLoading = true);
     final (workouts, errorCount) = await StorageHelper.loadAllWorkouts();
     setState(() {
       _workouts = workouts;
       _isLoading = false;
     });
-    if (mounted) {
+    if (mounted && showSnackbar) {
       if (workouts.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${workouts.length} workout(s) loaded')),
@@ -51,7 +51,7 @@ class _HomePageState extends State<HomePage> {
 
   void _deleteWorkout(Workout workout) async {
     await StorageHelper.deleteWorkout(workout.id);
-    await _loadWorkouts();
+    await loadWorkouts();
   }
 
   void _duplicateWorkout(Workout workout) async {
@@ -60,7 +60,7 @@ class _HomePageState extends State<HomePage> {
       blocks: List<WorkoutBlock>.from(workout.blocks),
     );
     await StorageHelper.saveWorkout(copy);
-    await _loadWorkouts();
+    await loadWorkouts();
   }
 
   @override
@@ -94,7 +94,7 @@ class _HomePageState extends State<HomePage> {
                       MaterialPageRoute(
                         builder: (context) => WorkoutRunner(workout: workout),
                       ),
-                    ).then((_) => _loadWorkouts());
+                    ).then((_) => loadWorkouts());
                   },
                   onEdit: () {
                     Navigator.push(
@@ -102,7 +102,7 @@ class _HomePageState extends State<HomePage> {
                       MaterialPageRoute(
                         builder: (context) => WorkoutBuilder(workout: workout),
                       ),
-                    ).then((_) => _loadWorkouts());
+                    ).then((_) => loadWorkouts());
                   },
                   onDelete: () => _showDeleteDialog(context, workout),
                   onDuplicate: () => _duplicateWorkout(workout),
@@ -116,7 +116,7 @@ class _HomePageState extends State<HomePage> {
             MaterialPageRoute(
               builder: (context) => WorkoutBuilder(workout: Workout()),
             ),
-          ).then((_) => _loadWorkouts());
+          ).then((_) => loadWorkouts());
         },
         child: const Icon(Icons.add),
       ),

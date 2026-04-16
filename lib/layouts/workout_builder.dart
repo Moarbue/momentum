@@ -232,10 +232,14 @@ class _WorkoutBuilderState extends State<WorkoutBuilder> {
                       _workout.blocks.removeAt(index);
                     });
                   },
-                  onCopyBlock: (idx) {
+                  onCopyBlock: (idx, [newBlock]) {
                     setState(() {
-                      final copy = _deepCopyBlock(_workout.blocks[idx]);
-                      _workout.blocks.insert(idx + 1, copy);
+                      if (newBlock != null) {
+                        _workout.blocks.insert(idx, newBlock);
+                      } else {
+                        final copy = _deepCopyBlock(_workout.blocks[idx]);
+                        _workout.blocks.insert(idx + 1, copy);
+                      }
                     });
                   },
                   blockList: _workout.blocks,
@@ -283,7 +287,7 @@ class _BlockEditor extends StatelessWidget {
   final WorkoutBlock block;
   final VoidCallback onChanged;
   final VoidCallback onDelete;
-  final void Function(int index)? onCopyBlock;
+  final void Function(int index, [WorkoutBlock? newBlock])? onCopyBlock;
   final List<WorkoutBlock>? blockList;
 
   const _BlockEditor({
@@ -309,9 +313,10 @@ class _BlockEditor extends StatelessWidget {
       return _SetEditor(
         key: ValueKey(block),
         set: block as Set,
+        setIndex: setIndex,
         onChanged: onChanged,
         onDelete: onDelete,
-        onCopy: () => onCopyBlock?.call(setIndex),
+        onCopyBlock: onCopyBlock,
       );
     }
     return const SizedBox.shrink();
@@ -505,16 +510,18 @@ class _StepEditorState extends State<_StepEditor> {
 
 class _SetEditor extends StatefulWidget {
   final Set set;
+  final int setIndex;
   final VoidCallback onChanged;
   final VoidCallback onDelete;
-  final VoidCallback onCopy;
+  final void Function(int index, [WorkoutBlock? newBlock])? onCopyBlock;
 
   const _SetEditor({
     super.key,
     required this.set,
+    required this.setIndex,
     required this.onChanged,
     required this.onDelete,
-    required this.onCopy,
+    this.onCopyBlock,
   });
 
   @override
@@ -571,8 +578,13 @@ class _SetEditorState extends State<_SetEditor> {
       }
       return WorkoutStep();
     }).toList();
-    widget.set.blocks.addAll(copiedBlocks);
-    setState(() {});
+    final newSet = Set(
+      repetitions: widget.set.repetitions,
+      blocks: copiedBlocks,
+    );
+    final insertIndex = widget.setIndex + 1;
+    widget.onCopyBlock?.call(insertIndex, newSet);
+    widget.onChanged();
   }
 
   @override

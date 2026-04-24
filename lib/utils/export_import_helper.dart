@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
+
 import '../models/workout.dart';
 
 class ExportImportHelper {
@@ -23,13 +24,11 @@ class ExportImportHelper {
       );
 
       if (result != null) {
-        return result;
-      }
-      return null;
-    } catch (e) {
-      print('Export error: $e');
+return result;
+    } catch (_) {
       return null;
     }
+  }
   }
 
   static Future<Workout?> importWorkout() async {

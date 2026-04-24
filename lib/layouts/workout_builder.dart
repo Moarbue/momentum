@@ -427,7 +427,7 @@ class _StepEditorState extends State<_StepEditor> {
     final colorScheme = Theme.of(context).colorScheme;
     
     return Card(
-      color: widget.step.backgroundColor.withOpacity(0.2),
+      color: widget.step.backgroundColor.withValues(alpha: 0.2),
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -641,10 +641,7 @@ class _SetEditorState extends State<_SetEditor> {
               ],
             ),
             const Divider(),
-            if (widget.set.blocks.isEmpty)
-              const SizedBox(height: 0)
-            else
-              ReorderableListView.builder(
+            ReorderableListView.builder(
                 shrinkWrap: true,
                 physics: const ClampingScrollPhysics(),
                 itemCount: widget.set.blocks.length,

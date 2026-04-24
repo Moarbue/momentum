@@ -124,25 +124,35 @@ class HomePageState extends State<HomePage> {
   }
 
   void _showDeleteDialog(BuildContext context, Workout workout) {
-    showDialog(
+showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Workout'),
-        content: Text('Are you sure you want to delete ${workout.name}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+      builder: (dialogContext) {
+        final dialogColorScheme = Theme.of(dialogContext).colorScheme;
+        return AlertDialog(
+          title: const Text('Delete Workout'),
+          content: Text(
+            'Are you sure you want to delete ${workout.name}?',
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
           ),
-          TextButton(
-            onPressed: () {
-              _deleteWorkout(workout);
-              Navigator.pop(context);
-            },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                _deleteWorkout(workout);
+                Navigator.pop(dialogContext);
+              },
+              child: Text(
+                'Delete',
+                style: TextStyle(color: dialogColorScheme.error),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -163,28 +173,30 @@ class _WorkoutItem extends StatelessWidget {
     required this.onDuplicate,
   });
 
-  @override
+@override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: ListTile(
-        title: Text(workout.name),
+        title: Text(workout.name, overflow: TextOverflow.ellipsis, maxLines: 1),
         subtitle: Text('Duration: ${formatDurationClock(workout.duration)}'),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: const Icon(Icons.play_arrow, color: Colors.green),
+              icon: Icon(Icons.play_arrow, color: colorScheme.primary),
               onPressed: onStart,
             ),
             IconButton(
-              icon: const Icon(Icons.copy, color: Colors.blue),
+              icon: Icon(Icons.copy, color: colorScheme.secondary),
               onPressed: onDuplicate,
               tooltip: 'Duplicate',
             ),
             IconButton(icon: const Icon(Icons.edit), onPressed: onEdit),
             IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
+              icon: Icon(Icons.delete, color: colorScheme.error),
               onPressed: onDelete,
             ),
           ],

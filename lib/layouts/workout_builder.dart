@@ -380,47 +380,52 @@ class _StepEditorState extends State<_StepEditor> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select Color'),
-        content: Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: colors.map((color) {
-            return GestureDetector(
-              onTap: () {
-                widget.step.backgroundColor = color;
-                widget.onChanged();
-                Navigator.pop(context);
-              },
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: widget.step.backgroundColor == color
-                        ? Colors.black
-                        : Colors.transparent,
-                    width: 3,
+      builder: (dialogContext) {
+        final dialogColorScheme = Theme.of(dialogContext).colorScheme;
+        return AlertDialog(
+          title: const Text('Select Color'),
+          content: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: colors.map((color) {
+              return GestureDetector(
+                onTap: () {
+                  widget.step.backgroundColor = color;
+                  widget.onChanged();
+                  Navigator.pop(dialogContext);
+                },
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: widget.step.backgroundColor == color
+                          ? dialogColorScheme.outline
+                          : Colors.transparent,
+                      width: 3,
+                    ),
                   ),
                 ),
-              ),
-            );
-          }).toList(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+              );
+            }).toList(),
           ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Card(
       color: widget.step.backgroundColor.withOpacity(0.2),
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -436,7 +441,12 @@ class _StepEditorState extends State<_StepEditor> {
                 decoration: BoxDecoration(
                   color: widget.step.backgroundColor,
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
+                  border: Border.all(
+                    color: colorScheme.brightness == Brightness.light
+                        ? Colors.white
+                        : Colors.black,
+                    width: 2,
+                  ),
                 ),
               ),
             ),
@@ -492,13 +502,16 @@ class _StepEditorState extends State<_StepEditor> {
                   ),
                   Text(
                     formatDurationClock(widget.step.durationValue),
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
+              icon: Icon(Icons.delete, color: colorScheme.error),
               onPressed: widget.onDelete,
             ),
           ],
@@ -589,6 +602,8 @@ class _SetEditorState extends State<_SetEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
@@ -615,12 +630,12 @@ class _SetEditorState extends State<_SetEditor> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.copy, color: Colors.blue),
+                  icon: Icon(Icons.copy, color: colorScheme.secondary),
                   onPressed: () => _copySet(),
                   tooltip: 'Copy',
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
+                  icon: Icon(Icons.delete, color: colorScheme.error),
                   onPressed: widget.onDelete,
                 ),
               ],

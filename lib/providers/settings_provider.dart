@@ -10,6 +10,7 @@ class SettingsProvider with ChangeNotifier {
   bool _skipSoundEnabled = true;
   bool _prepEnabled = true;
   int _prepDuration = 10;
+  bool _useDynamicColor = false;
   bool _isLoaded = false;
 
   ThemeMode get themeMode => _themeMode;
@@ -20,6 +21,7 @@ class SettingsProvider with ChangeNotifier {
   bool get skipSoundEnabled => _skipSoundEnabled;
   bool get prepEnabled => _prepEnabled;
   int get prepDuration => _prepDuration;
+  bool get useDynamicColor => _useDynamicColor;
   bool get isLoaded => _isLoaded;
 
   SettingsProvider() {
@@ -32,6 +34,7 @@ class SettingsProvider with ChangeNotifier {
     final themeIndex = prefs.getInt('themeMode') ?? 0;
     _themeMode = ThemeMode.values[themeIndex];
 
+    _useDynamicColor = prefs.getBool('useDynamicColor') ?? false;
     _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? false;
     _soundEnabled = prefs.getBool('soundEnabled') ?? false;
     _countdownSoundEnabled = prefs.getBool('countdownSoundEnabled') ?? true;
@@ -98,5 +101,12 @@ class SettingsProvider with ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('prepDuration', duration);
+  }
+
+  Future<void> setUseDynamicColor(bool enabled) async {
+    _useDynamicColor = enabled;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('useDynamicColor', enabled);
   }
 }

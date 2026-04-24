@@ -130,6 +130,14 @@ class _SettingsPageState extends State<SettingsPage> {
               }).toList(),
             ),
           ),
+          ListTile(
+            title: const Text('Dynamic Colors'),
+            subtitle: const Text('Use colors from wallpaper (Android 12+)'),
+            trailing: Switch(
+              value: settings.useDynamicColor,
+              onChanged: (val) => settings.setUseDynamicColor(val),
+            ),
+          ),
           const Divider(),
           ListTile(
             title: const Text('Notifications'),

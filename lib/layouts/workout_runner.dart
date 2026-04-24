@@ -7,6 +7,8 @@ import '../providers/settings_provider.dart';
 import '../utils/utils.dart';
 import '../utils/sound_helper.dart';
 import '../utils/notification_helper.dart';
+import '../widgets/smart_marquee.dart';
+import '../widgets/fitting_text.dart';
 
 class StepContext {
   final WorkoutStep step;
@@ -258,7 +260,17 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
     return Scaffold(
       backgroundColor: currentStep.backgroundColor,
       appBar: AppBar(
-        title: Text(widget.workout.name),
+        title: SizedBox(
+          height: kToolbarHeight,
+          width: double.infinity,
+          child: SmartMarquee(
+            text: widget.workout.name,
+            style: const TextStyle(color: Colors.white, fontSize: 20),
+            velocity: 50,
+            pauseAfterRound: const Duration(milliseconds: 1000),
+            startAfter: const Duration(milliseconds: 2000),
+          ),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -266,19 +278,25 @@ class _WorkoutRunnerState extends State<WorkoutRunner> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'Next: $nextStepName',
-              style: const TextStyle(fontSize: 20, color: Colors.white70),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: FittingText(
+                key: ValueKey('next_$nextStepName'),
+                text: 'Next: $nextStepName',
+                fontSize: 20,
+                fallbackFontSizes: [16],
+              ),
             ),
             const SizedBox(height: 16),
-            Text(
-              currentStep.name,
-              style: const TextStyle(
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: FittingText(
+                key: ValueKey('current_${currentStep.name}'),
+                text: currentStep.name,
                 fontSize: 48,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+                fallbackFontSizes: [32, 24],
+                isBold: true,
               ),
-              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
             Text(

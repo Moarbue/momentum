@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/workout.dart';
 import '../utils/storage_helper.dart';
 import '../utils/utils.dart';
+import '../widgets/smart_marquee.dart';
 import 'workout_builder.dart';
 import 'workout_runner.dart';
 
@@ -15,11 +16,19 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   List<Workout> _workouts = [];
   bool _isLoading = true;
+  Key _listKey = UniqueKey();
 
   @override
   void initState() {
     super.initState();
     loadWorkouts();
+  }
+
+  /// Restart all marquee animations - called when page becomes visible
+  void restartMarquees() {
+    setState(() {
+      _listKey = UniqueKey();
+    });
   }
 
   Future<void> loadWorkouts({bool showSnackbar = false}) async {
@@ -72,6 +81,7 @@ class HomePageState extends State<HomePage> {
           : _workouts.isEmpty
           ? const Center(child: Text('No workouts yet. Create one!'))
           : ReorderableListView.builder(
+              key: _listKey,
               itemCount: _workouts.length,
               onReorder: (oldIndex, newIndex) {
                 setState(() {
@@ -124,7 +134,7 @@ class HomePageState extends State<HomePage> {
   }
 
   void _showDeleteDialog(BuildContext context, Workout workout) {
-showDialog(
+    showDialog(
       context: context,
       builder: (dialogContext) {
         final dialogColorScheme = Theme.of(dialogContext).colorScheme;
@@ -157,7 +167,7 @@ showDialog(
   }
 }
 
-class _WorkoutItem extends StatelessWidget {
+class _WorkoutItem extends StatefulWidget {
   final Workout workout;
   final VoidCallback onStart;
   final VoidCallback onEdit;
@@ -173,31 +183,51 @@ class _WorkoutItem extends StatelessWidget {
     required this.onDuplicate,
   });
 
-@override
+  @override
+  State<_WorkoutItem> createState() => _WorkoutItemState();
+}
+
+class _WorkoutItemState extends State<_WorkoutItem> {
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: ListTile(
-        title: Text(workout.name, overflow: TextOverflow.ellipsis, maxLines: 1),
-        subtitle: Text('Duration: ${formatDurationClock(workout.duration)}'),
+        title: SizedBox(
+          height: 24,
+          child: SmartMarquee(
+            text: widget.workout.name,
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              fontSize: Theme.of(context).textTheme.titleMedium?.fontSize,
+              fontWeight: FontWeight.w500,
+            ),
+            velocity: 40,
+            pauseAfterRound: const Duration(milliseconds: 1000),
+            startAfter: const Duration(milliseconds: 2000),
+          ),
+        ),
+        subtitle: Text(
+          'Duration: ${formatDurationClock(widget.workout.duration)}',
+        ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
               icon: Icon(Icons.play_arrow, color: colorScheme.primary),
-              onPressed: onStart,
+              onPressed: widget.onStart,
             ),
             IconButton(
               icon: Icon(Icons.copy, color: colorScheme.secondary),
-              onPressed: onDuplicate,
+              onPressed: widget.onDuplicate,
               tooltip: 'Duplicate',
             ),
-            IconButton(icon: const Icon(Icons.edit), onPressed: onEdit),
+            IconButton(icon: const Icon(Icons.edit), onPressed: widget.onEdit),
             IconButton(
               icon: Icon(Icons.delete, color: colorScheme.error),
-              onPressed: onDelete,
+              onPressed: widget.onDelete,
             ),
           ],
         ),

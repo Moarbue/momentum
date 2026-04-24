@@ -38,6 +38,10 @@ class _MainNavigationState extends State<MainNavigation> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) {
+          // Restart marquees when switching to workouts tab (index 0)
+          if (_currentIndex != 0 && index == 0) {
+            _homePageKey.currentState?.restartMarquees();
+          }
           setState(() {
             _currentIndex = index;
           });

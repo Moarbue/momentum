@@ -60,7 +60,11 @@ class _SettingsPageState extends State<SettingsPage> {
             shrinkWrap: true,
             itemCount: workouts.length,
             itemBuilder: (context, index) => ListTile(
-              title: Text(workouts[index].name),
+              title: Text(
+                workouts[index].name,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
               onTap: () => Navigator.pop(context, workouts[index]),
             ),
           ),

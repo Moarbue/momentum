@@ -24,11 +24,12 @@ class ExportImportHelper {
       );
 
       if (result != null) {
-return result;
+        return result;
+      }
+      return null;
     } catch (_) {
       return null;
     }
-  }
   }
 
   static Future<Workout?> importWorkout() async {
